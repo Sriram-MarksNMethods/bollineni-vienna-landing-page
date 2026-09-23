@@ -5,6 +5,7 @@ interface ButtonProps {
   className?: string;
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
+  download?: boolean | string;
 }
 
 export default function Button({
@@ -14,6 +15,7 @@ export default function Button({
   className = "",
   type = "button",
   disabled = false,
+  download,
 }: ButtonProps) {
   const variantClass =
     variant === "secondary" ? "bg-white text-black" : "bg-ink text-white";
@@ -21,7 +23,11 @@ export default function Button({
 
   if (href) {
     return (
-      <a href={href} className={`${btnClass} inline-block max-w-full`}>
+      <a
+        href={href}
+        download={download}
+        className={`${btnClass} inline-block max-w-full`}
+      >
         {text}
       </a>
     );

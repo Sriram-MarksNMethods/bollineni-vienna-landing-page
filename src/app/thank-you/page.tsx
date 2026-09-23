@@ -44,8 +44,13 @@ export default function ThankYouPage() {
         <div className="w-full pt-14 max-lg:pt-10 max-md:pt-8"></div>
         <div className="flex items-center gap-[1vw] max-lg:gap-4">
           <Button href="/" text="Back to Home" variant="primary" />
-          <Button href="/#book" text="Download Brochure" variant="secondary" />
-        </div>{/* Download Brochure currently points at the contact form (/#book), same placeholder target as the homepage's button, until a real brochure PDF is provided. */}
+          <Button
+            href="/Bollineni_Brochure.pdf"
+            download
+            text="Download Brochure"
+            variant="secondary"
+          />
+        </div>
       </div>
     </section>
   );

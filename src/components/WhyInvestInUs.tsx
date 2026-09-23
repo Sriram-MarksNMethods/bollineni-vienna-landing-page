@@ -52,7 +52,12 @@ export default function WhyInvestInUs() {
         </div>
         <div className="w-full pt-14 max-lg:pt-12 max-md:pt-10"></div>
         <div className="flex justify-center">
-          <Button href="/#book" variant="primary" text="Download Brochure" />
+          <Button
+            href="/Bollineni_Brochure.pdf"
+            download
+            variant="primary"
+            text="Download Brochure"
+          />
         </div>
 
         <div className="w-full pt-24 max-lg:pt-20 max-md:pt-14"></div>
