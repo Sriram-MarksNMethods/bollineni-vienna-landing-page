@@ -80,8 +80,11 @@ export default function Footer() {
         <div className="pt-[3vw] max-lg:pt-20"></div>
         <div className="flex flex-col gap-[1vw] w-full h-full max-lg:gap-8 max-md:gap-4">
           <div className="flex justify-between mb-[1vw] max-lg:mb-6 max-md:flex-col max-md:items-start max-md:gap-3">
-            <div className="flex justify-end max-md:justify-start">
+            <div className="flex items-center gap-[1.5vw] max-lg:gap-4 justify-end max-md:justify-start">
               <div className="text-white">© 2026 All rights reserved.</div>
+              <a href="/privacy-policy" className="text-white underline underline-offset-2">
+                Privacy Policy
+              </a>
             </div>
             <div className="max-md:order-first">
               <div className="text-white">

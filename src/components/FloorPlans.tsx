@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 interface Category {
   id: string;
@@ -8,14 +9,29 @@ interface Category {
   images: string[];
 }
 
-// Stock placeholder imagery until final master-plan / site-plan / legend /
-// floor-plan artwork is supplied — swap the paths below when real assets land.
 const categories: Category[] = [
-  { id: "master-plan", label: "Master Plan", images: ["/images/floor-plans/master-plan.png"] },
   {
-    id: "floor-plans",
-    label: "Floor Plans",
-    images: ["/images/floor-plans/floor-plan-1.png", "/images/floor-plans/floor-plan-2.png"],
+    id: "tower-a",
+    label: "Tower A - 5 BHK",
+    images: [
+      "/images/floor-plans/tower-a/typical-plan.jpg",
+      "/images/floor-plans/tower-a/first-floor-plan.jpg",
+      "/images/floor-plans/tower-a/unit-1.jpg",
+      "/images/floor-plans/tower-a/unit-2.jpg",
+      "/images/floor-plans/tower-a/unit-1-first-floor.jpg",
+    ],
+  },
+  {
+    id: "tower-b",
+    label: "Tower B - 4 BHK",
+    images: [
+      "/images/floor-plans/tower-b/typical-plan.jpg",
+      "/images/floor-plans/tower-b/first-floor-plan.jpg",
+      "/images/floor-plans/tower-b/unit-1.jpg",
+      "/images/floor-plans/tower-b/unit-2.jpg",
+      "/images/floor-plans/tower-b/unit-3.jpg",
+      "/images/floor-plans/tower-b/unit-3-first-floor.jpg",
+    ],
   },
 ];
 
@@ -54,21 +70,18 @@ export default function FloorPlans() {
 
         <div className="w-full pt-10 max-lg:pt-8 max-md:pt-6"></div>
 
-        <div
-          className={`grid gap-[1.5vw] max-lg:gap-6 max-md:gap-4 ${
-            active.images.length > 1 ? "grid-cols-2 max-md:grid-cols-1" : "grid-cols-1"
-          }`}
-        >
+        <div className="grid gap-[1.5vw] max-lg:gap-6 max-md:gap-4 grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-1">
           {active.images.map((src) => (
             <div
               key={src}
-              className="group relative overflow-hidden h-[28vw] max-lg:h-[55vw] max-md:h-[70vw]"
+              className="group relative overflow-hidden h-[20vw] max-lg:h-[40vw] max-md:h-[70vw]"
             >
-              <img
+              <Image
                 src={src}
                 alt={active.label}
-                loading="lazy"
-                className="w-full h-full object-cover block blur-md scale-105 select-none pointer-events-none"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="object-cover blur-md scale-105 select-none pointer-events-none"
               />
               <div className="absolute inset-0 bg-ink/40 group-hover:bg-ink/55 transition-colors" />
               <div className="absolute inset-0 flex items-center justify-center">
