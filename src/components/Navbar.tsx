@@ -157,11 +157,11 @@ export default function Navbar() {
             <div className="flex flex-col gap-[0.5vw]">
               <div className="text-neutral-light">CONTACT US</div>
               <div className="flex flex-col">
-                <a href="#" className="inline-block max-w-full text-black">
-                  <p className="text-2xl max-lg:text-xl max-md:text-base">+00 00000 00000</p>
+                <a href="tel:+918722000148" className="inline-block max-w-full text-black">
+                  <p className="text-2xl max-lg:text-xl max-md:text-base">+91 87220 00148</p>
                 </a>
-                <a href="#" className="inline-block max-w-full text-black">
-                  <p className="text-2xl max-lg:text-xl max-md:text-base">justan@example.com</p>
+                <a href="mailto:bscplre9@gmail.com" className="inline-block max-w-full text-black">
+                  <p className="text-2xl max-lg:text-xl max-md:text-base">bscplre9@gmail.com</p>
                 </a>
               </div>
             </div>

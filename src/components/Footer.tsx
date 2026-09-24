@@ -37,11 +37,11 @@ export default function Footer() {
             <div className="flex flex-col gap-[0.75vw] max-lg:gap-4 max-md:gap-3">
               <div className="text-neutral-light">CONTACT US</div>
               <div className="flex flex-col gap-[0.5vw] max-lg:gap-2 max-md:gap-[0.35rem]">
-                <a href="#" className="w-fit inline-block max-w-full">
-                  <p className="text-2xl max-lg:text-xl max-md:text-base text-white">+00 00000 00000</p>
+                <a href="tel:+918722000148" className="w-fit inline-block max-w-full">
+                  <p className="text-2xl max-lg:text-xl max-md:text-base text-white">+91 87220 00148</p>
                 </a>
-                <a href="#" className="w-fit inline-block max-w-full">
-                  <p className="text-2xl max-lg:text-xl max-md:text-base text-white">justan@example.com</p>
+                <a href="mailto:bscplre9@gmail.com" className="w-fit inline-block max-w-full">
+                  <p className="text-2xl max-lg:text-xl max-md:text-base text-white">bscplre9@gmail.com</p>
                 </a>
               </div>
             </div>
