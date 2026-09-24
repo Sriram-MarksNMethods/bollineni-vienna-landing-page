@@ -2,14 +2,14 @@ import Button from "./Button";
 import AmenityIcon from "./AmenityIcon";
 
 const amenities = [
-  { icon: "home-swimming-pool", text: "Calm, refreshing pool for relaxation." },
-  { icon: "home-cooking-pot", text: "Modern kitchen with complete essentials." },
-  { icon: "home-couch", text: "Open-air seating for easy living." },
-  { icon: "home-wifi-high", text: "Fast, reliable connection throughout." },
-  { icon: "home-snowflake", text: "Cool, comfortable rooms all day." },
-  { icon: "home-car", text: "Secure on-site parking available." },
-  { icon: "home-briefcase", text: "Quiet workspace for focused time." },
-  { icon: "home-mountains", text: "Beautiful natural views surrounding." },
+  { icon: "swimming-pool", name: "Swimming Pool", text: "for unhurried relaxation." },
+  { icon: "park", name: "Open-Air Seating", text: "for relaxed moments." },
+  { icon: "racquet", name: "Double Badminton Court", text: "for active leisure." },
+  { icon: "elevator", name: "Personal Elevators", text: "for added privacy." },
+  { icon: "flower-lotus", name: "Meditation Deck", text: "for moments of stillness." },
+  { icon: "person-simple-run", name: "Jogging Track", text: "for invigorating mornings." },
+  { icon: "barbell", name: "Gym", text: "for everyday fitness." },
+  { icon: "tennis-ball", name: "Lawn Tennis / Pickle Ball", text: "for active play." },
 ];
 
 // border sides each grid item shows, matching the reference's grid-line layout
@@ -44,12 +44,12 @@ export default function Amenities() {
             >
               <AmenityIcon
                 name={amenity.icon}
-                label={amenity.text}
+                label={`${amenity.name} ${amenity.text}`}
                 index={index}
                 className="size-12 lg:max-xl:size-10 max-lg:size-10 max-md:size-8"
               />
               <div className="text-2xl lg:max-xl:text-xl max-lg:text-xl max-md:text-base text-center text-white w-[85%] max-lg:w-full">
-                {amenity.text}
+                <strong className="font-bold">{amenity.name}</strong> {amenity.text}
               </div>
             </div>
           ))}

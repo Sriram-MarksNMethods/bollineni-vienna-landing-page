@@ -46,7 +46,7 @@ export default function Hero() {
             </h1>
             <div className="flex justify-center w-[30vw] max-lg:w-auto">
               <p className="text-sm text-center">
-                Luxury 4 & 5 BHK Apartments in Yelahanka, North Bangalore
+                Luxury 4 & 5 BHK Apartments in Kogilu, North Bangalore
               </p>
             </div>
           </div>

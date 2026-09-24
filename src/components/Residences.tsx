@@ -29,6 +29,9 @@ const GalleryItem = ({
 }) => (
   <div
     className={`relative overflow-hidden w-full cursor-pointer ${itemHeights[index]}`}
+    // On mobile the column wrappers collapse (max-md:contents), so this
+    // order puts the images back in 01 → 09 sequence in the single column.
+    style={{ order: index }}
     onClick={onOpen}
   >
     <Image
@@ -74,8 +77,8 @@ export default function Residences() {
         </div>
         <div className="w-full pt-14 max-lg:pt-12 max-md:pt-10"></div>
 
-        <div className="grid grid-cols-3 gap-[1.5vw] lg:max-xl:gap-4 max-lg:grid-cols-2 max-lg:grid-rows-[auto_auto] max-lg:gap-6 max-md:grid-cols-1 max-md:grid-rows-[auto_auto_auto] max-sm:gap-4">
-          <div className="flex flex-col gap-[1.5vw] pt-[3.5vw] max-lg:gap-6 max-lg:pt-0 max-sm:gap-5">
+        <div className="grid grid-cols-3 gap-[1.5vw] lg:max-xl:gap-4 max-lg:grid-cols-2 max-lg:grid-rows-[auto_auto] max-lg:gap-6 max-md:grid-cols-1 max-md:grid-rows-none max-sm:gap-4">
+          <div className="flex flex-col gap-[1.5vw] pt-[3.5vw] max-lg:gap-6 max-lg:pt-0 max-md:contents max-sm:gap-5">
             {col1.map((item) => (
               <GalleryItem
                 key={item.id}
@@ -85,7 +88,7 @@ export default function Residences() {
               />
             ))}
           </div>
-          <div className="flex flex-col gap-[1.5vw] max-lg:gap-6 max-sm:gap-4">
+          <div className="flex flex-col gap-[1.5vw] max-lg:gap-6 max-md:contents max-sm:gap-4">
             {col2.map((item) => (
               <GalleryItem
                 key={item.id}
@@ -95,7 +98,7 @@ export default function Residences() {
               />
             ))}
           </div>
-          <div className="flex flex-col gap-[1.5vw] pt-[3.5vw] max-lg:gap-6 max-lg:pt-0 max-sm:gap-4">
+          <div className="flex flex-col gap-[1.5vw] pt-[3.5vw] max-lg:gap-6 max-lg:pt-0 max-md:contents max-sm:gap-4">
             {col3.map((item) => (
               <GalleryItem
                 key={item.id}

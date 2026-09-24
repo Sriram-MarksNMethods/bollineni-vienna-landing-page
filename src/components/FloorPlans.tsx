@@ -87,7 +87,7 @@ export default function FloorPlans() {
               <div className="absolute inset-0 flex items-center justify-center">
                 <a
                   href="#book"
-                  className="px-[1.75vw] py-[0.75vw] lg:max-xl:px-6 lg:max-xl:py-3 max-lg:px-6 max-lg:py-3 max-md:px-5 max-md:py-2.5 rounded-full bg-white text-ink text-base max-lg:text-sm max-md:text-xs font-medium opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 cursor-pointer"
+                  className="px-[1.75vw] py-[0.75vw] lg:max-xl:px-6 lg:max-xl:py-3 max-lg:px-6 max-lg:py-3 max-md:px-5 max-md:py-2.5 rounded-full bg-white text-ink text-base max-lg:text-sm max-md:text-xs font-medium opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 pointer-coarse:opacity-100 pointer-coarse:translate-y-0 max-lg:opacity-100 max-lg:translate-y-0 transition-all duration-300 cursor-pointer"
                 >
                   View Plan
                 </a>

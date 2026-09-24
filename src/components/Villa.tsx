@@ -35,11 +35,11 @@ const horizon: Villa = {
     { id: "02", name: "Dining Room", src: "/images/gallery/gallery-02.jpg" },
     { id: "03", name: "Sunset Balcony", src: "/images/gallery/gallery-03.jpg" },
     { id: "04", name: "Swimming Pool", src: "/images/gallery/gallery-04.jpg" },
-    { id: "05", name: "Garden Gazebo", src: "/images/gallery/gallery-05.jpg" },
+    { id: "05", name: "The Canopy Court", src: "/images/gallery/gallery-05.jpg" },
     { id: "06", name: "Badminton Court", src: "/images/gallery/gallery-06.jpg" },
-    { id: "07", name: "Kids' Play Area", src: "/images/gallery/gallery-07.jpg" },
-    { id: "08", name: "Landscaped Pergola", src: "/images/gallery/gallery-08.jpg" },
-    { id: "09", name: "Sports Courts", src: "/images/gallery/gallery-09.jpg" },
+    { id: "07", name: "Children's Play Area", src: "/images/gallery/gallery-07.jpg" },
+    { id: "08", name: "The Social Sanctuary", src: "/images/gallery/gallery-08.jpg" },
+    { id: "09", name: "Sports Facilities", src: "/images/gallery/gallery-09.jpg" },
   ],
 };
 
