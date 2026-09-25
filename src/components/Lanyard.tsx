@@ -39,6 +39,10 @@ const STRAP_SEGMENT = 0.6;
 // Distance (world units) from the canvas's left edge to the strap's anchor.
 const ANCHOR_FROM_LEFT = 1.3;
 
+// Where the logo artwork actually sits inside its 1920 x 1080 SVG canvas
+// (icon + wordmark); the rest of the canvas is empty padding.
+const LOGO_CROP = { x: 644, y: 152, w: 632, h: 776 };
+
 // Pulling the card this far below where the drag started (world units) and
 // letting go opens the popup.
 const PULL_TO_OPEN = 1.5;
@@ -64,6 +68,12 @@ async function drawCardFaces(): Promise<{ front: string; back: string }> {
   const logo = new Image();
   logo.src = "/images/bollineni_vienna.svg";
   await logo.decode();
+  // The SVG decodes at a tiny intrinsic size (267 x 150), so rasterize it at
+  // its full 1920 x 1080 viewBox first and crop from that sharp copy.
+  const logoFull = document.createElement("canvas");
+  logoFull.width = 1920;
+  logoFull.height = 1080;
+  logoFull.getContext("2d")!.drawImage(logo, 0, 0, 1920, 1080);
 
   // Same proportions as the card face's region in the model's texture atlas
   // (~839 x 1266 px), so the text isn't resampled.
@@ -83,16 +93,23 @@ async function drawCardFaces(): Promise<{ front: string; back: string }> {
   const front = make((ctx) => {
     ctx.fillStyle = "#fbf8f1";
     ctx.fillRect(0, 0, W, H);
-    ctx.drawImage(logo, 60, 90, 720, 405);
+    // Logo cropped to its artwork and drawn large. Drawing it a few times,
+    // nudged by a couple of pixels, thickens its fine strokes so they survive
+    // being shrunk onto a small card.
+    const logoH = 400;
+    const logoW = (LOGO_CROP.w / LOGO_CROP.h) * logoH;
+    for (const [dx, dy] of [[0, 0], [-2, 0], [2, 0], [0, -2], [0, 2]]) {
+      ctx.drawImage(logoFull, LOGO_CROP.x, LOGO_CROP.y, LOGO_CROP.w, LOGO_CROP.h, (W - logoW) / 2 + dx, 120 + dy, logoW, logoH);
+    }
     ctx.fillStyle = "#0c0c0c";
-    ctx.fillRect(90, 560, W - 180, 4);
+    ctx.fillRect(90, 555, W - 180, 12);
     // Bold sans for the call to action: Cormorant's fine strokes blur on a small,
     // moving 3D card.
     ctx.font = `700 150px ${body}`;
     ctx.fillText("ENQUIRE", W / 2, 720);
     ctx.fillText("NOW!", W / 2, 880);
-    ctx.fillRect(90, 990, W - 180, 4);
-    ctx.font = `700 46px ${body}`;
+    ctx.fillRect(90, 985, W - 180, 12);
+    ctx.font = `700 52px ${body}`;
     ctx.fillText("PULL DOWN TO OPEN", W / 2, 1110);
   });
 
