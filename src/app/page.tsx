@@ -11,6 +11,7 @@ import FAQ from "@/components/FAQ";
 import LocationMap from "@/components/LocationMap";
 import Footer from "@/components/Footer";
 import LoadingScreen from "@/components/LoadingScreen";
+import EnquiryLauncher from "@/components/EnquiryLauncher";
 
 // react-phone-input-2 (+ its full country/dial-code dataset) makes this the
 // heaviest client component on the page -- split it into its own chunk so
@@ -23,6 +24,7 @@ export default function Home() {
   return (
     <>
       <LoadingScreen />
+      <EnquiryLauncher />
       <Navbar />
       <main className="relative z-[2] max-lg:static">
         <Hero />

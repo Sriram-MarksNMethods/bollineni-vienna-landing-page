@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { lockScroll, unlockScroll } from "@/lib/scrollLock";
+import { markLoaderDone } from "@/lib/loaderDone";
 
 export default function LoadingScreen() {
   const [visible, setVisible] = useState(true);
@@ -31,6 +32,7 @@ export default function LoadingScreen() {
       dismissedRef.current = true;
       unlockScroll();
       setVisible(false);
+      markLoaderDone();
     };
 
     const timer = setTimeout(() => {
