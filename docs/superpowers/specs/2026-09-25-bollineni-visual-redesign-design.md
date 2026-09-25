@@ -106,7 +106,7 @@ first-load JS does not include three/r3f.
 - **Scenes:**
   1. Pool photo (`/images/gallery/gallery-04.jpg`) full-bleed; `<h1>` "BOLLINENI VIENNA" + "Luxury 4 & 5 BHK Apartments in Kogilu, North Bangalore". Visible without scrolling.
   2. Ink vertical line in the center widens to cover the frame.
-  3. Living-room photo (`/images/about.jpg`) appears small inside the ink and scales to full-bleed; inside it the top-view photo (`/images/gallery/gallery-09.jpg`) appears and scales to full-bleed.
+  3. Living-room photo (`/images/about.jpg`) appears small inside the ink and scales to full-bleed; inside it the aerial top-view photo (`/images/gallery/gallery-09.jpg`, "Sports Facilities") appears and scales to full-bleed.
   4. Ink card grows to full screen with: "Expansive 4 & 5 BHK residences, lush greens, and curated amenities come together in a refined address where sophistication meets serenity."
   5. Khaki bar opens from the center to reveal "Contemporary luxury living in North Bengaluru" on khaki; pin releases into About.
 - First photo keeps `preload`/`loading="eager"`; others lazy via `next/image`.
@@ -123,7 +123,7 @@ first-load JS does not include three/r3f.
 - `summary` is split into its three sentences; each is used once below.
 - **Scenes:**
   1. "RESIDENCE" heading on beige; tilted strip of the 9 photos drifting sideways along the bottom.
-  2. The Bedroom photo straightens (rotate → 0) and scales to full-bleed.
+  2. The Master Bedroom photo (`gallery-01`) straightens (rotate → 0) and scales to full-bleed.
   3. Horizontal track (pinned, translates left): full-bleed photos alternating with ink text panels
      (one summary sentence + a smaller portrait photo). Photos keep their "NN Name" captions.
   4. Closing: third summary sentence centered on beige; tilted strip returns along the bottom.
