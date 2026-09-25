@@ -80,53 +80,26 @@ p, a {
   }
 }
 
-/* Mobile nav menu */
-.nav-menu_component {
-  z-index: 20;
-  width: 100%;
-  height: 100vh;
-  position: fixed;
-  inset: 0% auto 0% 0%;
-  display: flex;
-  background-color: rgba(12, 12, 12, 0.55);
-  opacity: 0;
-  visibility: hidden;
+/* Staggered menu: 01–09 numbers next to each link. Tailwind can't express
+   counters, and GSAP fades them in via --sm-num-opacity. */
+.sm-list {
+  counter-reset: smItem;
+}
+.sm-item::after {
+  counter-increment: smItem;
+  content: counter(smItem, decimal-leading-zero);
+  position: absolute;
+  top: 0.15em;
+  right: 0;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #5227ff;
+  opacity: var(--sm-num-opacity, 0);
   pointer-events: none;
-  will-change: opacity;
-  transition: opacity 0.35s ease, visibility 0.35s ease;
 }
 
-.nav-menu_component.is-open {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-}
-
-.nav-menu {
-  background-color: var(--color-khaki);
-  display: flex;
-  flex-flow: column;
-  align-items: stretch;
-  width: 28vw;
-  height: 100vh;
-  padding: 2vw;
-  gap: 6vw;
-  transform: translateX(-100%);
-  will-change: transform;
-  transition: transform 0.4s cubic-bezier(0.65, 0, 0.35, 1);
-  @media (max-width: 991px) {
-    width: 25rem;
-    padding: 1.5rem 2rem;
-    gap: 6rem;
-  }
-  @media (max-width: 767px) {
-    width: 100%;
-  }
-}
-
-.nav-menu_component.is-open .nav-menu {
-  transform: translateX(0);
-}
 
 /* FAQ accordion */
 .faq-item_answer {
