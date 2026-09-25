@@ -11,60 +11,52 @@ import { onLoaderDone } from "@/lib/loaderDone";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-// Horizontal track, left to right. "photo" = full-screen image with caption;
-// "text" = one sentence of the summary beside a smaller portrait photo.
-const track = [
-  { kind: "photo", image: 0 },
-  { kind: "text", sentence: 0, image: 1 },
-  { kind: "photo", image: 2 },
-  { kind: "photo", image: 4 },
-  { kind: "text", sentence: 1, image: 7 },
-  { kind: "photo", image: 5 },
-  { kind: "photo", image: 6 },
+// All 9 gallery photos, one after another, each revealed on top of the last:
+// "wipe" = a thin vertical slice that widens to full screen,
+// "zoom" = pops in small in the centre, then grows to full screen,
+// "card" = a card that grows to full screen carrying one summary sentence.
+// The first photo is the opening frame with the section title.
+const scenes = [
+  { image: 0, reveal: "base" },
+  { image: 1, reveal: "wipe" },
+  { image: 2, reveal: "zoom" },
+  { image: 3, reveal: "zoom" },
+  { image: 4, reveal: "card", sentence: 0 },
+  { image: 5, reveal: "wipe" },
+  { image: 6, reveal: "zoom" },
+  { image: 7, reveal: "card", sentence: 1 },
+  { image: 8, reveal: "zoom" },
 ] as const;
 
-// Gallery indexes in strip order: the Master Bedroom (0) is third, in the
-// middle of the screen, because it's the photo that lifts out and zooms.
-const stripOrder = [7, 8, 0, 1, 2, 3, 4, 5, 6];
+// Start (hidden) and middle (small) clip-paths per reveal. Every value spells
+// out all four insets: the browser shortens computed inset() values, and
+// tweening between strings with different numbers of values goes lopsided.
+const clips = {
+  wipe: ["inset(50% 49.9% 50% 49.9%)", "inset(12% 49.9% 12% 49.9%)"],
+  zoom: ["inset(50% 50% 50% 50%)", "inset(38% 38% 38% 38%)"],
+  card: ["inset(50% 50% 50% 50%)", "inset(32% 26% 32% 26%)"],
+} as const;
+const FULL = "inset(0% 0% 0% 0%)";
+
+// Initial clip-paths as CSS, so nothing flashes before GSAP runs. They match
+// clips[reveal][0] above.
+const startClass = {
+  base: "",
+  wipe: "motion-safe:[clip-path:inset(50%_49.9%_50%_49.9%)]",
+  zoom: "motion-safe:[clip-path:inset(50%_50%_50%_50%)]",
+  card: "motion-safe:[clip-path:inset(50%_50%_50%_50%)]",
+} as const;
+
+// Full-screen layer; with reduced motion the layers just stack.
+const layer = "absolute inset-0 motion-reduce:relative motion-reduce:h-[100svh] overflow-hidden";
 
 const caption = (index: number, item: GalleryImage) =>
   `${String(index + 1).padStart(2, "0")} ${item.name}`;
 
-function Strip({
-  gallery,
-  onOpen,
-  className = "",
-}: {
-  gallery: GalleryImage[];
-  onOpen: (index: number) => void;
-  className?: string;
-}) {
-  return (
-    // Offset so the third tile (the Master Bedroom, see stripOrder) sits at the
-    // horizontal centre on every screen size.
-    <div className={`res-strip absolute left-[-7vw] max-md:left-[calc(-50vw-1.5rem)] bottom-[8vh] flex gap-[1vw] max-lg:gap-3 -rotate-6 ${className}`}>
-      {stripOrder.map((i) => {
-        const item = gallery[i];
-        return (
-        <button
-          key={item.id}
-          type="button"
-          onClick={() => onOpen(i)}
-          aria-label={`Open ${item.name}`}
-          className={`relative shrink-0 w-[22vw] h-[14vw] max-md:w-[40vw] max-md:h-[28vw] overflow-hidden cursor-pointer ${i === 0 ? "res-strip-bedroom" : ""}`}
-        >
-          <Image src={item.src} alt={item.name} fill sizes="(max-width: 767px) 40vw, 22vw" className="object-cover" />
-        </button>
-        );
-      })}
-    </div>
-  );
-}
-
 export default function Residences() {
   const villa = useVilla();
   const { gallery } = villa;
-  // The summary is three sentences: two go on the track, the last closes the story.
+  // The summary is three sentences: two go on the cards, the last closes the story.
   const sentences = villa.summary.match(/[^.!?]+[.!?]+/g)?.map((s) => s.trim()) ?? [villa.summary];
   const closing = sentences[sentences.length - 1];
 
@@ -79,8 +71,6 @@ export default function Residences() {
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
-      const refresh = () => ScrollTrigger.refresh();
-      window.addEventListener("load", refresh);
       const unsubscribe = onLoaderDone(() => {
         mm.add(
           { isMobile: "(max-width: 767px)", motionOK: "(prefers-reduced-motion: no-preference)" },
@@ -88,81 +78,48 @@ export default function Residences() {
             const { isMobile, motionOK } = ctx.conditions as { isMobile: boolean; motionOK: boolean };
             if (!motionOK) return;
             const q = gsap.utils.selector(sectionRef);
-            const trackEl = q(".res-track")[0] as HTMLElement;
 
-            const sectionEl = sectionRef.current as HTMLElement;
-            const zoomEl = q(".res-zoom")[0] as HTMLElement;
-            const tileEl = q(".res-intro .res-strip-bedroom")[0] as HTMLElement;
+            const tl = gsap.timeline({
+              defaults: { ease: "none" },
+              scrollTrigger: {
+                trigger: sectionRef.current,
+                start: "top top",
+                end: isMobile ? "+=700%" : "+=900%",
+                pin: true,
+                scrub: 0.5,
+                anticipatePin: 1,
+              },
+            });
 
-            // The full-screen zoom layer starts exactly on top of the bedroom
-            // tile in the strip: same centre, same tilt, scaled down, and
-            // clipped to the tile's proportions. Recomputed on every refresh.
-            const tileStart = () => {
-              const W = zoomEl.offsetWidth;
-              const H = zoomEl.offsetHeight;
-              const box = tileEl.getBoundingClientRect(); // rotated bounding box
-              const home = sectionEl.getBoundingClientRect();
-              const tileW = tileEl.offsetWidth;
-              const tileH = tileEl.offsetHeight;
-              const scale = Math.max(tileW / W, tileH / H);
-              const insetX = ((1 - tileW / (W * scale)) / 2) * 100;
-              const insetY = ((1 - tileH / (H * scale)) / 2) * 100;
-              return {
-                x: box.left + box.width / 2 - home.left - W / 2,
-                y: box.top + box.height / 2 - home.top - H / 2,
-                scale,
-                clipPath: `inset(${insetY}% ${insetX}% ${insetY}% ${insetX}%)`,
-              };
-            };
+            // Opening frame: the title lifts away as the first reveal starts.
+            tl.to(q(".res-title"), { opacity: 0, y: -40, duration: 0.5 }, 0.2);
 
-            gsap.set(tileEl, { autoAlpha: 0 });
-            gsap.set(zoomEl, { autoAlpha: 1 });
+            let t = 0.6;
+            scenes.forEach((scene, i) => {
+              if (scene.reveal === "base") return;
+              const el = q(`.res-scene-${i}`);
+              const img = q(`.res-scene-${i} .res-img`);
+              const [hidden, small] = clips[scene.reveal];
+              const popTime = scene.reveal === "wipe" ? 0.4 : scene.reveal === "card" ? 0.5 : 0.3;
 
-            gsap
-              .timeline({
-                defaults: { ease: "none" },
-                scrollTrigger: {
-                  trigger: sectionRef.current,
-                  start: "top top",
-                  end: isMobile ? "+=400%" : "+=500%",
-                  pin: true,
-                  scrub: 0.5,
-                  anticipatePin: 1,
-                  invalidateOnRefresh: true,
-                },
-              })
-              // 1–2: the bedroom photo lifts out of the strip, straightens and
-              // fills the frame; the heading fades and the strip drifts behind it
-              .fromTo(
-                zoomEl,
-                {
-                  x: () => tileStart().x,
-                  y: () => tileStart().y,
-                  scale: () => tileStart().scale,
-                  rotate: -6,
-                  clipPath: () => tileStart().clipPath,
-                },
-                { x: 0, y: 0, scale: 1, rotate: 0, clipPath: "inset(0% 0% 0% 0%)", duration: 1.4 },
-                0.2
-              )
-              .to(q(".res-intro .res-strip"), { xPercent: -8, duration: 1.4 }, 0.2)
-              .to(q(".res-intro h2"), { autoAlpha: 0, y: -30, duration: 0.5 }, 0.3)
-              .set(q(".res-intro"), { autoAlpha: 0 }, 1.6)
-              // hand-off: the track's first panel is the same photo, full-bleed
-              .set(q(".res-track"), { autoAlpha: 1 }, 1.6)
-              .set(zoomEl, { autoAlpha: 0 }, 1.6)
-              // 3: horizontal track
-              .to(trackEl, { x: () => -(trackEl.scrollWidth - window.innerWidth), duration: 5 }, 1.6)
-              // 4: closing statement wipes in from the right, strip returns
-              .fromTo(q(".res-closing"), { clipPath: "inset(0% 0% 0% 100%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 1 }, 6.6)
-              .fromTo(q(".res-closing .res-strip"), { xPercent: 10 }, { xPercent: -5, duration: 1.5 }, 6.6)
-              .to({}, { duration: 0.4 });
+              tl.fromTo(el, { clipPath: hidden }, { clipPath: small, duration: popTime }, t)
+                .fromTo(el, { clipPath: small }, { clipPath: FULL, duration: 1.1 }, t + popTime)
+                .fromTo(img, { scale: scene.reveal === "wipe" ? 1.15 : 1.4 }, { scale: 1, duration: popTime + 1.1 }, t);
+              if (scene.reveal === "card") {
+                tl.fromTo(q(`.res-scene-${i} .res-text`), { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6 }, t + 0.6);
+              }
+              t += popTime + 1.1 + (scene.reveal === "card" ? 0.5 : 0.2);
+            });
+
+            // Closing: khaki opens from the centre with the last sentence.
+            tl.fromTo(q(".res-closing"), { clipPath: "inset(0% 50% 0% 50%)" }, { clipPath: FULL, duration: 1 }, t)
+              .fromTo(q(".res-closing p"), { opacity: 0 }, { opacity: 1, duration: 0.5 }, t + 0.6)
+              .to({}, { duration: 0.5 });
           }
         );
       });
       return () => {
         unsubscribe();
-        window.removeEventListener("load", refresh);
         mm.revert();
       };
     },
@@ -173,71 +130,49 @@ export default function Residences() {
     <section
       id="residences"
       ref={sectionRef}
-      className="relative h-[100svh] overflow-hidden bg-beige motion-reduce:h-auto"
+      className="relative h-[100svh] overflow-hidden bg-ink motion-reduce:h-auto"
     >
-      {/* 1. Intro: heading + tilted strip */}
-      <div className="res-intro absolute inset-0 motion-reduce:relative motion-reduce:h-[100svh]">
-        <div className="pt-[12vh] flex justify-center">
-          <h2 className="text-6xl lg:max-xl:text-5xl max-lg:text-5xl max-md:text-3xl font-medium leading-none">RESIDENCE</h2>
-        </div>
-        <Strip gallery={gallery} onOpen={setLightboxIndex} />
-      </div>
-
-      {/* 2. Zoom layer (hidden until GSAP runs; unused with reduced motion) */}
-      <div className="res-zoom pointer-events-none absolute inset-0 invisible motion-reduce:hidden">
-        <Image src={gallery[0].src} alt={gallery[0].name} fill sizes="100vw" className="object-cover" />
-      </div>
-
-      {/* 3. Horizontal track */}
-      <div className="res-track absolute top-0 left-0 h-full flex motion-safe:invisible motion-reduce:relative motion-reduce:flex-col motion-reduce:h-auto">
-        {track.map((panel, i) => {
-          if (panel.kind === "photo") {
-            const item = gallery[panel.image];
-            return (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setLightboxIndex(panel.image)}
-                aria-label={`Open ${item.name}`}
-                className="relative shrink-0 w-screen h-[100svh] overflow-hidden cursor-pointer"
-              >
-                <Image src={item.src} alt={item.name} fill sizes="100vw" className="object-cover" />
-                <div className="absolute inset-x-0 bottom-0 p-[1.5vw] max-lg:p-4 text-left text-white bg-[linear-gradient(#0000,#0c0c0cbf)]">
-                  {caption(panel.image, item)}
-                </div>
-              </button>
-            );
-          }
-          const item = gallery[panel.image];
-          return (
-            <div
-              key={i}
-              className="shrink-0 w-screen h-[100svh] bg-ink text-white flex items-center justify-center gap-[5vw] px-[8vw] max-md:flex-col max-md:gap-8 max-md:px-6"
-            >
-              <p className="max-w-[34vw] max-md:max-w-none text-2xl max-lg:text-xl max-md:text-lg leading-snug">
-                {sentences[panel.sentence]}
-              </p>
-              <button
-                type="button"
-                onClick={() => setLightboxIndex(panel.image)}
-                aria-label={`Open ${item.name}`}
-                className="relative shrink-0 w-[22vw] h-[30vw] max-md:w-[60vw] max-md:h-[80vw] overflow-hidden cursor-pointer"
-              >
-                <Image src={item.src} alt={item.name} fill sizes="(max-width: 767px) 60vw, 22vw" className="object-cover" />
-              </button>
+      {scenes.map((scene, i) => {
+        const item = gallery[scene.image];
+        return (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setLightboxIndex(scene.image)}
+            aria-label={`Open ${item.name}`}
+            className={`res-scene-${i} ${layer} block w-full cursor-pointer text-left ${startClass[scene.reveal]}`}
+          >
+            <Image
+              src={item.src}
+              alt={item.name}
+              fill
+              sizes="100vw"
+              className="res-img object-cover"
+            />
+            {scene.reveal === "base" && (
+              <div className="res-title absolute inset-0 flex items-center justify-center bg-black/35">
+                <h2 className="text-7xl max-lg:text-6xl max-md:text-4xl font-medium leading-none text-white">RESIDENCE</h2>
+              </div>
+            )}
+            {scene.reveal === "card" && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/55 px-5">
+                <p className="res-text max-w-[52vw] max-lg:max-w-[44rem] max-md:max-w-[85vw] text-center font-heading uppercase text-white text-4xl max-lg:text-3xl max-md:text-2xl leading-tight">
+                  {sentences[scene.sentence]}
+                </p>
+              </div>
+            )}
+            <div className="absolute inset-x-0 bottom-0 p-[1.5vw] max-lg:p-4 text-white bg-[linear-gradient(#0000,#0c0c0cbf)]">
+              {caption(scene.image, item)}
             </div>
-          );
-        })}
-      </div>
+          </button>
+        );
+      })}
 
-      {/* 4. Closing statement + strip */}
-      <div className="res-closing absolute inset-0 bg-beige motion-safe:[clip-path:inset(0%_0%_0%_100%)] motion-reduce:relative motion-reduce:h-[100svh]">
-        <div className="h-[70%] flex items-center justify-center px-5">
-          <p className="max-w-[50vw] max-lg:max-w-[40rem] max-md:max-w-[85vw] text-center text-3xl max-lg:text-2xl max-md:text-xl leading-snug">
-            {closing}
-          </p>
-        </div>
-        <Strip gallery={gallery} onOpen={setLightboxIndex} />
+      {/* Closing statement */}
+      <div className={`res-closing ${layer} bg-khaki flex items-center justify-center motion-safe:[clip-path:inset(0%_50%_0%_50%)]`}>
+        <p className="max-w-[50vw] max-lg:max-w-[40rem] max-md:max-w-[85vw] px-5 text-center font-heading uppercase text-ink text-5xl max-lg:text-4xl max-md:text-2xl leading-tight">
+          {closing}
+        </p>
       </div>
 
       {/* Portalled to <body>: ScrollTrigger transforms the pinned section, which would

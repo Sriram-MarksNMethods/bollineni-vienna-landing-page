@@ -25,7 +25,7 @@ export default function Home() {
     <>
       <LoadingScreen />
       <EnquiryLauncher />
-      <Navbar tone="light" />
+      <Navbar />
       <main className="relative z-[2] max-lg:static">
         <Hero />
         <About />

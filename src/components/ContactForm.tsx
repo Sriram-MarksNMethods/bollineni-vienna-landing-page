@@ -16,9 +16,11 @@ const inputClass =
 const labelClass =
   "pointer-events-none absolute left-5 top-8 -translate-y-1/2 text-base text-ink/50 transition-all duration-150 peer-focus:top-4 peer-focus:text-xs peer-[:not(:placeholder-shown)]:top-4 peer-[:not(:placeholder-shown)]:text-xs";
 
-// The form only asks for name, phone and email; /api/contact still expects a
-// purpose, so every enquiry is sent as a general enquiry.
-const PURPOSE = "general-enquiry";
+const purposeOptions = [
+  { value: "general-enquiry", label: "General Enquiry" },
+  { value: "download-brochure", label: "Brochure" },
+  { value: "site-visit", label: "Site Visit" },
+];
 
 type Status = "idle" | "submitting" | "error";
 
@@ -30,6 +32,7 @@ export default function ContactForm({ idPrefix }: { idPrefix: string }) {
   const [phone, setPhone] = useState("");
   const [dialCode, setDialCode] = useState("91");
   const [email, setEmail] = useState("");
+  const [purpose, setPurpose] = useState("");
   const [status, setStatus] = useState<Status>("idle");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,7 +43,7 @@ export default function ContactForm({ idPrefix }: { idPrefix: string }) {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone: `+${dialCode}${phone}`, email, purpose: PURPOSE }),
+        body: JSON.stringify({ name, phone: `+${dialCode}${phone}`, email, purpose }),
       });
 
       if (!res.ok) throw new Error("Submission failed");
@@ -53,6 +56,31 @@ export default function ContactForm({ idPrefix }: { idPrefix: string }) {
 
   return (
     <form id={`${idPrefix}-contact-form`} onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <fieldset className="flex flex-col">
+        <legend className="mb-3 text-sm text-ink/60">I&apos;m interested in</legend>
+        <div className="flex flex-wrap gap-2">
+          {purposeOptions.map((option, i) => (
+            <label
+              key={option.value}
+              className="cursor-pointer rounded-full border border-ink/20 px-5 py-2.5 text-[0.95rem] text-ink transition-colors hover:border-ink has-checked:border-ink has-checked:bg-ink has-checked:text-beige has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ink"
+            >
+              <input
+                type="radio"
+                name="Purpose"
+                id={`${idPrefix}-Purpose-${option.value}`}
+                value={option.value}
+                checked={purpose === option.value}
+                onChange={(e) => setPurpose(e.target.value)}
+                // One required radio makes the whole group required.
+                required={i === 0}
+                className="sr-only"
+              />
+              {option.label}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
       <div className={boxClass}>
         <input
           className={inputClass}

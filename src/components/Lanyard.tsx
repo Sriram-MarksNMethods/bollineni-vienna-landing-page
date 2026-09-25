@@ -133,15 +133,17 @@ export default function Lanyard({ onOpen }: { onOpen: () => void }) {
   if (!faces) return null;
 
   return (
-    // The canvas ignores the mouse; R3F listens on <body> instead, so only
-    // the card mesh itself is interactive and the page underneath stays clickable.
-    <div className="pointer-events-none fixed top-0 left-0 z-40 h-screen w-[32vw] max-lg:w-[45vw] max-md:w-[70vw]">
+    // Full-screen canvas, so the card can be dragged anywhere without being
+    // cut off at the canvas edge. The canvas ignores the mouse; R3F listens on
+    // <body> instead, so only the card mesh itself is interactive and the page
+    // underneath stays clickable.
+    <div className="pointer-events-none fixed inset-0 z-40">
       <Canvas
         eventSource={document.body}
         eventPrefix="client"
         style={{ pointerEvents: "none" }}
         camera={{ position: [0, 0, 30], fov: 20 }}
-        dpr={[1, isMobile ? 1.5 : 2]}
+        dpr={[1, 1.5]}
         // No filmic tone mapping: it flattens the printed card's contrast.
         flat
         gl={{ alpha: true }}
