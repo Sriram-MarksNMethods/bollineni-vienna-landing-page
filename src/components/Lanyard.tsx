@@ -116,6 +116,10 @@ async function drawCardFaces(): Promise<{ front: string; back: string }> {
 export default function Lanyard({ onOpen }: { onOpen: () => void }) {
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
   const [faces, setFaces] = useState<{ front: string; back: string } | null>(null);
+  // True while the card hangs still: physics and rendering are paused so the
+  // 3D canvas costs nothing while the visitor scrolls. Grabbing the card
+  // wakes it.
+  const [resting, setResting] = useState(false);
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
@@ -164,10 +168,10 @@ export default function Lanyard({ onOpen }: { onOpen: () => void }) {
           onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), 0)}
         >
           <ambientLight intensity={Math.PI} />
-          <Physics gravity={[0, -40, 0]} timeStep={isMobile ? 1 / 30 : 1 / 60}>
+          <Physics gravity={[0, -40, 0]} timeStep={isMobile ? 1 / 30 : 1 / 60} paused={resting}>
             {/* Remount on a phone/desktop switch: the joints are created once,
                 so a new card size needs a fresh rig. */}
-            <Band key={isMobile ? "mobile" : "desktop"} isMobile={isMobile} frontImage={faces.front} backImage={faces.back} onOpen={onOpen} strapPath={strapPath} />
+            <Band key={isMobile ? "mobile" : "desktop"} isMobile={isMobile} frontImage={faces.front} backImage={faces.back} onOpen={onOpen} strapPath={strapPath} setResting={setResting} />
           </Physics>
           <Environment blur={0.75}>
             <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
@@ -189,12 +193,14 @@ function Band({
   backImage,
   onOpen,
   strapPath,
+  setResting,
 }: {
   isMobile: boolean;
   frontImage: string;
   backImage: string;
   onOpen: () => void;
   strapPath: RefObject<SVGPathElement | null>;
+  setResting: (resting: boolean) => void;
 }) {
   const maxSpeed = 50;
   const minSpeed = 0;
@@ -210,6 +216,23 @@ function Band({
   const strapSegment = STRAP_SEGMENT[size];
   const anchorX = -viewportWidth / 2 + ANCHOR_FROM_LEFT[size];
   const pressRef = useRef<{ cardY: number } | null>(null);
+
+  // Stop physics and rendering once the card has settled: an always-on
+  // full-screen WebGL loop made page scrolling stutter. Both restart when the
+  // card is grabbed (or this rig is remounted), and pause again once it hangs
+  // still. The physics must pause too: while it runs it keeps requesting
+  // frames.
+  const setFrameloop = useThree((state) => state.setFrameloop);
+  const stillFrames = useRef(0);
+  const wake = () => {
+    stillFrames.current = 0;
+    setResting(false);
+    setFrameloop("always");
+  };
+  useEffect(() => {
+    setResting(false);
+    setFrameloop("always");
+  }, [setFrameloop, setResting]);
 
   const vec = new THREE.Vector3();
   const ang = new THREE.Vector3();
@@ -357,12 +380,21 @@ function Band({
       ang.copy(card.current.angvel());
       rot.copy(card.current.rotation());
       card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z }, true);
+
+      const lin = card.current.linvel();
+      const moving = dragged || Math.hypot(lin.x, lin.y, lin.z) > 0.02 || ang.length() > 0.02;
+      stillFrames.current = moving ? 0 : stillFrames.current + 1;
+      if (stillFrames.current === 45) {
+        setResting(true);
+        setFrameloop("demand");
+      }
     }
   });
 
 
   const onPointerDown = (e: ThreeEvent<PointerEvent>) => {
     if (isCovered(e)) return;
+    wake();
     (e.target as Element).setPointerCapture(e.pointerId);
     pressRef.current = { cardY: card.current.translation().y };
     drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())));
