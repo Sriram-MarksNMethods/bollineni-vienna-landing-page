@@ -37,7 +37,7 @@ export default function About() {
               className="object-cover"
             />
           </div>
-          <div className="flex flex-col gap-[1vw] max-lg:gap-4">
+          <div className="self-end max-lg:self-start flex flex-col gap-[1vw] max-lg:gap-4">
             <p className="text-base max-md:text-[0.95rem] leading-relaxed">
               Bollineni Vienna by Bollineni Group brings timeless elegance and contemporary luxury to one of North Bengaluru’s most sought-after locations. Designed for those who value exclusivity, this low-density gated community features refined architecture, expansive spaces, and world-class amenities.
             </p>
