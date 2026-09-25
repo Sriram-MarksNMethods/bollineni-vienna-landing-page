@@ -49,26 +49,26 @@ const BLOCKING_ELEMENTS = "a,button,input,select,textarea,label,dialog,#staggere
 const isCovered = (e: ThreeEvent<PointerEvent>) =>
   !!(e.nativeEvent.target as Element | null)?.closest?.(BLOCKING_ELEMENTS);
 
-// Draws the card faces with the site's own Cormorant/Jakarta fonts.
+// Draws the card faces with the site's own Plus Jakarta Sans font.
 async function drawCardFaces(): Promise<{ front: string; back: string }> {
   const root = getComputedStyle(document.documentElement);
-  const heading = root.getPropertyValue("--font-cormorant").trim() || "serif";
   const body = root.getPropertyValue("--font-jakarta").trim() || "sans-serif";
   // Load only the real web font (the first family): next/font's local()
   // "Fallback" face makes document.fonts.load reject. If loading fails, the
   // canvas just falls back to the next family in the list.
   const first = (family: string) => family.split(",")[0];
   await Promise.allSettled([
-    document.fonts.load(`600 120px ${first(heading)}`),
-    document.fonts.load(`400 30px ${first(body)}`),
+    document.fonts.load(`700 30px ${first(body)}`),
   ]);
 
   const logo = new Image();
   logo.src = "/images/bollineni_vienna.svg";
   await logo.decode();
 
-  const W = 640;
-  const H = 900;
+  // Same proportions as the card face's region in the model's texture atlas
+  // (~839 x 1266 px), so the text isn't resampled.
+  const W = 840;
+  const H = 1268;
   const make = (paint: (ctx: CanvasRenderingContext2D) => void) => {
     const canvas = document.createElement("canvas");
     canvas.width = W;
@@ -83,25 +83,28 @@ async function drawCardFaces(): Promise<{ front: string; back: string }> {
   const front = make((ctx) => {
     ctx.fillStyle = "#fbf8f1";
     ctx.fillRect(0, 0, W, H);
-    ctx.drawImage(logo, 20, 60, 600, 338);
+    ctx.drawImage(logo, 60, 90, 720, 405);
     ctx.fillStyle = "#0c0c0c";
-    ctx.font = `600 120px ${heading}`;
-    ctx.fillText("ENQUIRE", W / 2, 520);
-    ctx.fillText("NOW!", W / 2, 640);
-    ctx.font = `400 30px ${body}`;
-    ctx.fillStyle = "#555555";
-    ctx.fillText("Pull down to open", W / 2, 790);
+    ctx.fillRect(90, 560, W - 180, 4);
+    // Bold sans for the call to action: Cormorant's fine strokes blur on a small,
+    // moving 3D card.
+    ctx.font = `700 150px ${body}`;
+    ctx.fillText("ENQUIRE", W / 2, 720);
+    ctx.fillText("NOW!", W / 2, 880);
+    ctx.fillRect(90, 990, W - 180, 4);
+    ctx.font = `700 46px ${body}`;
+    ctx.fillText("PULL DOWN TO OPEN", W / 2, 1110);
   });
 
   const back = make((ctx) => {
     ctx.fillStyle = "#0c0c0c";
     ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = "#fbf8f1";
-    ctx.font = `600 84px ${heading}`;
-    ctx.fillText("Book a", W / 2, 360);
-    ctx.fillText("site visit", W / 2, 450);
-    ctx.font = `400 40px ${body}`;
-    ctx.fillText("+91 87220 00148", W / 2, 580);
+    ctx.font = `700 110px ${body}`;
+    ctx.fillText("Book a", W / 2, 480);
+    ctx.fillText("site visit", W / 2, 610);
+    ctx.font = `600 56px ${body}`;
+    ctx.fillText("+91 87220 00148", W / 2, 800);
   });
 
   return { front, back };
@@ -139,6 +142,8 @@ export default function Lanyard({ onOpen }: { onOpen: () => void }) {
         style={{ pointerEvents: "none" }}
         camera={{ position: [0, 0, 30], fov: 20 }}
         dpr={[1, isMobile ? 1.5 : 2]}
+        // No filmic tone mapping: it flattens the printed card's contrast.
+        flat
         gl={{ alpha: true }}
         onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), 0)}
       >
@@ -366,10 +371,12 @@ function Band({
               <meshPhysicalMaterial
                 map={cardMap}
                 map-anisotropy={16}
-                clearcoat={isMobile ? 0 : 1}
+                // Matte printed card: a metallic surface mirrors the environment
+                // lighting and washes out the print.
+                clearcoat={0}
                 clearcoatRoughness={0.15}
-                roughness={0.9}
-                metalness={0.8}
+                roughness={0.85}
+                metalness={0}
               />
             </mesh>
             <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
