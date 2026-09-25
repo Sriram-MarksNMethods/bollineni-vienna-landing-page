@@ -249,14 +249,24 @@ export default function StaggeredMenu() {
           <div className="sm-contact text-[#5227FF]">CONTACT US</div>
           <a href="tel:+918722000148" className="sm-contact text-[#111] text-xl transition-colors duration-300 hover:text-[#5227FF]">+91 87220 00148</a>
           <a href="mailto:bscplre9@gmail.com" className="sm-contact text-[#111] text-xl transition-colors duration-300 hover:text-[#5227FF]">bscplre9@gmail.com</a>
-          <a
-            href="https://www.instagram.com/bollinenigroup/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="sm-contact text-[#111] text-xl transition-colors duration-300 hover:text-[#5227FF]"
-          >
-            Instagram
-          </a>
+          <div className="sm-contact flex gap-6">
+            <a
+              href="https://www.instagram.com/bollinenigroup/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#111] text-xl transition-colors duration-300 hover:text-[#5227FF]"
+            >
+              Instagram
+            </a>
+            <a
+              href="https://www.linkedin.com/company/bollineni/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#111] text-xl transition-colors duration-300 hover:text-[#5227FF]"
+            >
+              LinkedIn
+            </a>
+          </div>
         </div>
       </aside>
     </div>

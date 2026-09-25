@@ -31,11 +31,11 @@ const BACK_UV_RECT = { x: 0.5, y: 0, w: 0.5, h: 0.757 };
 // On phones the strap is also shorter, so the card sits in the top-left
 // corner above the hero title. STRAP_SEGMENT is the length of each of the
 // strap's three rope segments (React Bits uses 1).
-const ANCHOR_FROM_LEFT = { desktop: 1.3, mobile: 0.75 };
-const CARD_SCALE = { desktop: 0.8, mobile: 0.45 };
+const ANCHOR_FROM_LEFT = { desktop: 1.3, mobile: 0.85 };
+const CARD_SCALE = { desktop: 0.8, mobile: 0.6 };
 const STRAP_SEGMENT = { desktop: 0.35, mobile: 0.14 };
 // Strap thickness in world units.
-const STRAP_WIDTH = { desktop: 0.2, mobile: 0.12 };
+const STRAP_WIDTH = { desktop: 0.2, mobile: 0.15 };
 
 // Pulling the card this far below where the drag started (world units) and
 // letting go opens the popup.
