@@ -27,6 +27,10 @@ export default function Hero() {
             const { isMobile, motionOK } = ctx.conditions as { isMobile: boolean; motionOK: boolean };
             if (!motionOK) return;
             const q = gsap.utils.selector(sectionRef);
+            // Every clip-path tween is a fromTo with all four inset values spelled
+            // out: the browser shortens computed values (e.g. "inset(32% 26%)"),
+            // and tweening from a 2-value string to a 4-value one pairs the
+            // numbers wrongly, so shapes grew lopsided from the corners.
             const full = "inset(0% 0% 0% 0%)";
 
             gsap
@@ -37,7 +41,7 @@ export default function Hero() {
                   start: "top top",
                   end: isMobile ? "+=300%" : "+=400%",
                   pin: true,
-                  scrub: 1,
+                  scrub: 0.5,
                   anticipatePin: 1,
                 },
               })
@@ -45,18 +49,18 @@ export default function Hero() {
               .to(q(".hero-pool-img"), { scale: 1.08, duration: 1 }, 0)
               .to(q(".hero-pool-text"), { opacity: 0, y: -40, duration: 0.5 }, 0.3)
               .fromTo(q(".hero-ink"), { clipPath: "inset(50% 49.9% 50% 49.9%)" }, { clipPath: "inset(12% 49.9% 12% 49.9%)", duration: 0.4 }, 0.5)
-              .to(q(".hero-ink"), { clipPath: full, duration: 1 }, 0.9)
+              .fromTo(q(".hero-ink"), { clipPath: "inset(12% 49.9% 12% 49.9%)" }, { clipPath: full, duration: 1 }, 0.9)
               // 3: zoom through living room, then aerial view
               // (each photo pops in small, then grows to full screen)
               .fromTo(q(".hero-living"), { clipPath: "inset(50% 50% 50% 50%)" }, { clipPath: "inset(38% 38% 38% 38%)", duration: 0.3 }, 1.9)
-              .to(q(".hero-living"), { clipPath: full, duration: 1.1 }, 2.2)
+              .fromTo(q(".hero-living"), { clipPath: "inset(38% 38% 38% 38%)" }, { clipPath: full, duration: 1.1 }, 2.2)
               .fromTo(q(".hero-living-img"), { scale: 1.4 }, { scale: 1, duration: 1.4 }, 1.9)
               .fromTo(q(".hero-aerial"), { clipPath: "inset(50% 50% 50% 50%)" }, { clipPath: "inset(40% 40% 40% 40%)", duration: 0.3 }, 3.3)
-              .to(q(".hero-aerial"), { clipPath: full, duration: 1.1 }, 3.6)
+              .fromTo(q(".hero-aerial"), { clipPath: "inset(40% 40% 40% 40%)" }, { clipPath: full, duration: 1.1 }, 3.6)
               .fromTo(q(".hero-aerial-img"), { scale: 1.4 }, { scale: 1, duration: 1.4 }, 3.3)
               // 4: ink card pops up over the aerial view, then grows to full screen with the hero line
               .fromTo(q(".hero-card"), { clipPath: "inset(50% 50% 50% 50%)" }, { clipPath: "inset(32% 26% 32% 26%)", duration: 0.5 }, 4.5)
-              .to(q(".hero-card"), { clipPath: full, duration: 1 }, 5)
+              .fromTo(q(".hero-card"), { clipPath: "inset(32% 26% 32% 26%)" }, { clipPath: full, duration: 1 }, 5)
               .fromTo(q(".hero-card-text"), { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6 }, 5.1)
               // 5: khaki opens from the centre with the closing statement
               .fromTo(q(".hero-khaki"), { clipPath: "inset(0% 50% 0% 50%)" }, { clipPath: full, duration: 1 }, 6.2)

@@ -23,6 +23,10 @@ const track = [
   { kind: "photo", image: 6 },
 ] as const;
 
+// Gallery indexes in strip order: the Master Bedroom (0) is third, in the
+// middle of the screen, because it's the photo that lifts out and zooms.
+const stripOrder = [7, 8, 0, 1, 2, 3, 4, 5, 6];
+
 const caption = (index: number, item: GalleryImage) =>
   `${String(index + 1).padStart(2, "0")} ${item.name}`;
 
@@ -36,18 +40,23 @@ function Strip({
   className?: string;
 }) {
   return (
-    <div className={`res-strip absolute left-[-10vw] bottom-[8vh] flex gap-[1vw] max-lg:gap-3 -rotate-6 ${className}`}>
-      {gallery.map((item, i) => (
+    // Offset so the third tile (the Master Bedroom, see stripOrder) sits at the
+    // horizontal centre on every screen size.
+    <div className={`res-strip absolute left-[-7vw] max-md:left-[calc(-50vw-1.5rem)] bottom-[8vh] flex gap-[1vw] max-lg:gap-3 -rotate-6 ${className}`}>
+      {stripOrder.map((i) => {
+        const item = gallery[i];
+        return (
         <button
           key={item.id}
           type="button"
           onClick={() => onOpen(i)}
           aria-label={`Open ${item.name}`}
-          className="relative shrink-0 w-[22vw] h-[14vw] max-md:w-[40vw] max-md:h-[28vw] overflow-hidden cursor-pointer"
+          className={`relative shrink-0 w-[22vw] h-[14vw] max-md:w-[40vw] max-md:h-[28vw] overflow-hidden cursor-pointer ${i === 0 ? "res-strip-bedroom" : ""}`}
         >
           <Image src={item.src} alt={item.name} fill sizes="(max-width: 767px) 40vw, 22vw" className="object-cover" />
         </button>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -81,7 +90,33 @@ export default function Residences() {
             const q = gsap.utils.selector(sectionRef);
             const trackEl = q(".res-track")[0] as HTMLElement;
 
-            gsap.set(q(".res-zoom"), { autoAlpha: 1, scale: 0.3, rotate: -6, yPercent: 25 });
+            const sectionEl = sectionRef.current as HTMLElement;
+            const zoomEl = q(".res-zoom")[0] as HTMLElement;
+            const tileEl = q(".res-intro .res-strip-bedroom")[0] as HTMLElement;
+
+            // The full-screen zoom layer starts exactly on top of the bedroom
+            // tile in the strip: same centre, same tilt, scaled down, and
+            // clipped to the tile's proportions. Recomputed on every refresh.
+            const tileStart = () => {
+              const W = zoomEl.offsetWidth;
+              const H = zoomEl.offsetHeight;
+              const box = tileEl.getBoundingClientRect(); // rotated bounding box
+              const home = sectionEl.getBoundingClientRect();
+              const tileW = tileEl.offsetWidth;
+              const tileH = tileEl.offsetHeight;
+              const scale = Math.max(tileW / W, tileH / H);
+              const insetX = ((1 - tileW / (W * scale)) / 2) * 100;
+              const insetY = ((1 - tileH / (H * scale)) / 2) * 100;
+              return {
+                x: box.left + box.width / 2 - home.left - W / 2,
+                y: box.top + box.height / 2 - home.top - H / 2,
+                scale,
+                clipPath: `inset(${insetY}% ${insetX}% ${insetY}% ${insetX}%)`,
+              };
+            };
+
+            gsap.set(tileEl, { autoAlpha: 0 });
+            gsap.set(zoomEl, { autoAlpha: 1 });
 
             gsap
               .timeline({
@@ -91,24 +126,36 @@ export default function Residences() {
                   start: "top top",
                   end: isMobile ? "+=400%" : "+=500%",
                   pin: true,
-                  scrub: 1,
+                  scrub: 0.5,
                   anticipatePin: 1,
                   invalidateOnRefresh: true,
                 },
               })
-              // 1: strip drifts sideways
-              .to(q(".res-intro .res-strip"), { xPercent: -15, duration: 1 }, 0)
-              // 2: Master Bedroom straightens and fills the frame
-              .to(q(".res-zoom"), { scale: 1, rotate: 0, yPercent: 0, duration: 1.2 }, 0.6)
-              .to(q(".res-intro"), { autoAlpha: 0, duration: 0.3 }, 1.5)
+              // 1–2: the bedroom photo lifts out of the strip, straightens and
+              // fills the frame; the heading fades and the strip drifts behind it
+              .fromTo(
+                zoomEl,
+                {
+                  x: () => tileStart().x,
+                  y: () => tileStart().y,
+                  scale: () => tileStart().scale,
+                  rotate: -6,
+                  clipPath: () => tileStart().clipPath,
+                },
+                { x: 0, y: 0, scale: 1, rotate: 0, clipPath: "inset(0% 0% 0% 0%)", duration: 1.4 },
+                0.2
+              )
+              .to(q(".res-intro .res-strip"), { xPercent: -8, duration: 1.4 }, 0.2)
+              .to(q(".res-intro h2"), { autoAlpha: 0, y: -30, duration: 0.5 }, 0.3)
+              .set(q(".res-intro"), { autoAlpha: 0 }, 1.6)
               // hand-off: the track's first panel is the same photo, full-bleed
-              .set(q(".res-track"), { autoAlpha: 1 }, 1.8)
-              .set(q(".res-zoom"), { autoAlpha: 0 }, 1.8)
+              .set(q(".res-track"), { autoAlpha: 1 }, 1.6)
+              .set(zoomEl, { autoAlpha: 0 }, 1.6)
               // 3: horizontal track
-              .to(trackEl, { x: () => -(trackEl.scrollWidth - window.innerWidth), duration: 5 }, 1.8)
+              .to(trackEl, { x: () => -(trackEl.scrollWidth - window.innerWidth), duration: 5 }, 1.6)
               // 4: closing statement wipes in from the right, strip returns
-              .fromTo(q(".res-closing"), { clipPath: "inset(0% 0% 0% 100%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 1 }, 6.8)
-              .fromTo(q(".res-closing .res-strip"), { xPercent: 10 }, { xPercent: -5, duration: 1.5 }, 6.8)
+              .fromTo(q(".res-closing"), { clipPath: "inset(0% 0% 0% 100%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 1 }, 6.6)
+              .fromTo(q(".res-closing .res-strip"), { xPercent: 10 }, { xPercent: -5, duration: 1.5 }, 6.6)
               .to({}, { duration: 0.4 });
           }
         );
