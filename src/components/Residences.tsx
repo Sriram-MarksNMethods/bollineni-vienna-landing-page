@@ -12,28 +12,26 @@ import { onLoaderDone } from "@/lib/loaderDone";
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 // All 9 gallery photos, one after another, each revealed on top of the last.
-// After the opening photo the reveals repeat wipe → zoom → card:
+// After the opening photo the reveals alternate wipe and card:
 // "wipe" = a thin vertical line grows in the centre, then widens to full screen,
-// "zoom" = the whole photo appears small in the centre and grows to full
-//          screen while the photo behind zooms in past the camera,
 // "card" = pops in as a wide card, then grows to full screen.
+// While each one arrives, the photo behind pushes in slightly.
 // The first photo is the opening frame, with the section title and summary.
 const scenes = [
   { image: 0, reveal: "base" },
   { image: 1, reveal: "wipe" },
-  { image: 2, reveal: "zoom" },
-  { image: 3, reveal: "card" },
-  { image: 4, reveal: "wipe" },
-  { image: 5, reveal: "zoom" },
+  { image: 2, reveal: "card" },
+  { image: 3, reveal: "wipe" },
+  { image: 4, reveal: "card" },
+  { image: 5, reveal: "wipe" },
   { image: 6, reveal: "card" },
   { image: 7, reveal: "wipe" },
-  { image: 8, reveal: "zoom" },
+  { image: 8, reveal: "card" },
 ] as const;
 
-// Start (hidden) and middle (small) clip-paths for the wipe and card reveals.
-// Every value spells out all four insets: the browser shortens computed
-// inset() values, and tweening between strings with different numbers of
-// values goes lopsided. (The zoom reveal scales the layer instead.)
+// Start (hidden) and middle (small) clip-paths per reveal. Every value spells
+// out all four insets: the browser shortens computed inset() values, and
+// tweening between strings with different numbers of values goes lopsided.
 const clips = {
   wipe: ["inset(50% 49.8% 50% 49.8%)", "inset(12% 49.8% 12% 49.8%)"],
   card: ["inset(50% 50% 50% 50%)", "inset(32% 26% 32% 26%)"],
@@ -41,11 +39,10 @@ const clips = {
 const FULL = "inset(0% 0% 0% 0%)";
 
 // Initial clip-paths as CSS, so nothing flashes before GSAP runs. They match
-// clips[reveal][0] above; zoom layers start hidden and are shown by GSAP.
+// clips[reveal][0] above.
 const startClass = {
   base: "",
   wipe: "motion-safe:[clip-path:inset(50%_49.8%_50%_49.8%)]",
-  zoom: "motion-safe:invisible",
   card: "motion-safe:[clip-path:inset(50%_50%_50%_50%)]",
 } as const;
 
@@ -106,17 +103,6 @@ export default function Residences() {
               // The photo currently on screen, which keeps moving towards the
               // camera while the next one arrives.
               const behind = q(`.res-scene-${i - 1} .res-img`);
-
-              if (scene.reveal === "zoom") {
-                // The whole photo appears small in the centre and grows to
-                // full screen; the photo behind zooms in with it, like
-                // flying through one picture into the next.
-                tl.set(el, { autoAlpha: 1 }, t)
-                  .fromTo(el, { scale: 0.12 }, { scale: 1, duration: 1.5, ease: "power2.in" }, t)
-                  .fromTo(behind, { scale: 1 }, { scale: 2.5, duration: 1.5, ease: "power2.in" }, t);
-                t += 1.7;
-                return;
-              }
 
               const [hidden, small] = clips[scene.reveal];
               const popTime = scene.reveal === "wipe" ? 0.4 : 0.5;
