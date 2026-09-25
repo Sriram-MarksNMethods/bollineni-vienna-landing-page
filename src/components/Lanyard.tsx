@@ -27,7 +27,6 @@ declare module "@react-three/fiber" {
 }
 
 const CARD_GLB = "/lanyard/card.glb";
-const STRAP_PNG = "/lanyard/lanyard.png";
 
 // The card model's front face is UV-mapped to the LEFT half of its texture
 // atlas and the back face to the RIGHT half (measured from card.glb).
@@ -42,7 +41,7 @@ const BACK_UV_RECT = { x: 0.5, y: 0, w: 0.5, h: 0.757 };
 // corner above the hero title. STRAP_SEGMENT is the length of each of the
 // strap's three rope segments (React Bits uses 1).
 const ANCHOR_FROM_LEFT = { desktop: 1.3, mobile: 0.75 };
-const CARD_SCALE = { desktop: 1, mobile: 0.52 };
+const CARD_SCALE = { desktop: 0.8, mobile: 0.45 };
 const STRAP_SEGMENT = { desktop: 0.6, mobile: 0.2 };
 
 // Pulling the card this far below where the drag started (world units) and
@@ -223,10 +222,6 @@ function Band({
   };
 
   const { nodes, materials } = useGLTF(CARD_GLB) as any;
-  // The strap texture repeats along the band.
-  const texture = useTexture(STRAP_PNG, (t) => {
-    t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  });
   const frontTex = useTexture(frontImage);
   const backTex = useTexture(backImage);
 
@@ -397,12 +392,10 @@ function Band({
         <meshLineGeometry />
         <meshLineMaterial
           args={[{ resolution: new THREE.Vector2(1000, 1000) }]}
-          color="white"
+          // Plain black strap (the React Bits strap texture carries their logo).
+          color="#0c0c0c"
           depthTest={false}
           resolution={isMobile ? [1000, 2000] : [1000, 1000]}
-          useMap={1}
-          map={texture}
-          repeat={[-4, 1]}
           lineWidth={1}
         />
       </mesh>
