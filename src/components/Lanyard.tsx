@@ -225,7 +225,11 @@ function Band({
   const size = isMobile ? "mobile" : "desktop";
   const cardScale = CARD_SCALE[size];
   const strapSegment = STRAP_SEGMENT[size];
-  const anchorX = -viewportWidth / 2 + ANCHOR_FROM_LEFT[size];
+  // Fixed when the rig mounts. Physics bodies only take their position on
+  // creation, so a later width change (address bar, scrollbar, rotation) must
+  // not move anything: previously it shifted the drawn card sideways away
+  // from its physics body and the strap.
+  const [anchor] = useState(() => ({ x: -viewportWidth / 2 + ANCHOR_FROM_LEFT[size], y: 5.6 }));
   const pressRef = useRef<{ cardY: number } | null>(null);
 
   // Stop physics and rendering once the card has settled: an always-on
@@ -431,19 +435,21 @@ function Band({
 
   return (
     <>
-      {/* Anchor sits just above the top edge so the strap hangs from off-screen. */}
-      <group position={[anchorX, 5.6, 0]}>
-        <RigidBody ref={fixed} {...segmentProps} type="fixed" />
-        <RigidBody position={[strapSegment * 0.5, 0, 0]} ref={j1} {...segmentProps} type="dynamic">
+      {/* Anchor sits just above the top edge so the strap hangs from off-screen.
+          Bodies are placed in world coordinates (no offset parent group), so
+          the drawn card always matches its physics body. */}
+      <group>
+        <RigidBody position={[anchor.x, anchor.y, 0]} ref={fixed} {...segmentProps} type="fixed" />
+        <RigidBody position={[anchor.x + strapSegment * 0.5, anchor.y, 0]} ref={j1} {...segmentProps} type="dynamic">
           <BallCollider args={[0.1]} collisionGroups={JOINT_COLLISIONS} />
         </RigidBody>
-        <RigidBody position={[strapSegment, 0, 0]} ref={j2} {...segmentProps} type="dynamic">
+        <RigidBody position={[anchor.x + strapSegment, anchor.y, 0]} ref={j2} {...segmentProps} type="dynamic">
           <BallCollider args={[0.1]} collisionGroups={JOINT_COLLISIONS} />
         </RigidBody>
-        <RigidBody position={[strapSegment * 1.5, 0, 0]} ref={j3} {...segmentProps} type="dynamic">
+        <RigidBody position={[anchor.x + strapSegment * 1.5, anchor.y, 0]} ref={j3} {...segmentProps} type="dynamic">
           <BallCollider args={[0.1]} collisionGroups={JOINT_COLLISIONS} />
         </RigidBody>
-        <RigidBody position={[strapSegment * 2, 0, 0]} ref={card} {...segmentProps} type={dragged ? "kinematicPosition" : "dynamic"}>
+        <RigidBody position={[anchor.x + strapSegment * 2, anchor.y, 0]} ref={card} {...segmentProps} type={dragged ? "kinematicPosition" : "dynamic"}>
           <CuboidCollider args={[0.8 * cardScale, 1.125 * cardScale, 0.01]} />
           <group
             scale={2.25 * cardScale}
