@@ -314,15 +314,21 @@ function Band({
   const drawStrap = (camera: THREE.PerspectiveCamera, size: { width: number; height: number }) => {
     const path = strapPath.current;
     if (!path) return;
-    const d = curve
-      .getPoints(isMobile ? 16 : 32)
-      .map((p, i) => {
-        projected.copy(p).project(camera);
-        const x = ((projected.x + 1) / 2) * size.width;
-        const y = ((1 - projected.y) / 2) * size.height;
-        return `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`;
-      })
-      .join(" ");
+    const points = curve.getPoints(isMobile ? 16 : 32).map((p) => {
+      projected.copy(p).project(camera);
+      return [((projected.x + 1) / 2) * size.width, ((1 - projected.y) / 2) * size.height];
+    });
+    // Draw nothing rather than garbage if the physics or the canvas isn't in a
+    // sane state (e.g. no WebGL): a stray path in a difference-blend layer
+    // shows up as inverted streaks across the page.
+    const sane = points.every(
+      ([x, y]) => Number.isFinite(x) && Number.isFinite(y) && Math.abs(x) < size.width * 3 && Math.abs(y) < size.height * 3
+    );
+    if (!sane || size.width === 0) {
+      path.removeAttribute("d");
+      return;
+    }
+    const d = points.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
     // World units → pixels at the card's depth (z = 0).
     const visibleHeight = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z;
     path.setAttribute("d", d);
