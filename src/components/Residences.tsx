@@ -14,17 +14,17 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 // All 9 gallery photos, one after another, each revealed on top of the last:
 // "wipe" = a thin vertical slice that widens to full screen,
 // "zoom" = pops in small in the centre, then grows to full screen,
-// "card" = a card that grows to full screen carrying one summary sentence.
-// The first photo is the opening frame with the section title.
+// "card" = pops in as a wide card, then grows to full screen.
+// The first photo is the opening frame, with the section title and summary.
 const scenes = [
   { image: 0, reveal: "base" },
   { image: 1, reveal: "wipe" },
   { image: 2, reveal: "zoom" },
   { image: 3, reveal: "zoom" },
-  { image: 4, reveal: "card", sentence: 0 },
+  { image: 4, reveal: "card" },
   { image: 5, reveal: "wipe" },
   { image: 6, reveal: "zoom" },
-  { image: 7, reveal: "card", sentence: 1 },
+  { image: 7, reveal: "card" },
   { image: 8, reveal: "zoom" },
 ] as const;
 
@@ -56,9 +56,6 @@ const caption = (index: number, item: GalleryImage) =>
 export default function Residences() {
   const villa = useVilla();
   const { gallery } = villa;
-  // The summary is three sentences: two go on the cards, the last closes the story.
-  const sentences = villa.summary.match(/[^.!?]+[.!?]+/g)?.map((s) => s.trim()) ?? [villa.summary];
-  const closing = sentences[sentences.length - 1];
 
   const sectionRef = useRef<HTMLElement>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -84,17 +81,18 @@ export default function Residences() {
               scrollTrigger: {
                 trigger: sectionRef.current,
                 start: "top top",
-                end: isMobile ? "+=700%" : "+=900%",
+                end: isMobile ? "+=600%" : "+=800%",
                 pin: true,
                 scrub: 0.5,
                 anticipatePin: 1,
               },
             });
 
-            // Opening frame: the title lifts away as the first reveal starts.
-            tl.to(q(".res-title"), { opacity: 0, y: -40, duration: 0.5 }, 0.2);
+            // Opening frame: the title and summary fade away first; the photo
+            // reveals only start once the text is gone.
+            tl.to(q(".res-title"), { opacity: 0, y: -40, duration: 0.6 }, 0.1);
 
-            let t = 0.6;
+            let t = 0.9;
             scenes.forEach((scene, i) => {
               if (scene.reveal === "base") return;
               const el = q(`.res-scene-${i}`);
@@ -105,16 +103,11 @@ export default function Residences() {
               tl.fromTo(el, { clipPath: hidden }, { clipPath: small, duration: popTime }, t)
                 .fromTo(el, { clipPath: small }, { clipPath: FULL, duration: 1.1 }, t + popTime)
                 .fromTo(img, { scale: scene.reveal === "wipe" ? 1.15 : 1.4 }, { scale: 1, duration: popTime + 1.1 }, t);
-              if (scene.reveal === "card") {
-                tl.fromTo(q(`.res-scene-${i} .res-text`), { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6 }, t + 0.6);
-              }
-              t += popTime + 1.1 + (scene.reveal === "card" ? 0.5 : 0.2);
+              t += popTime + 1.3;
             });
 
-            // Closing: khaki opens from the centre with the last sentence.
-            tl.fromTo(q(".res-closing"), { clipPath: "inset(0% 50% 0% 50%)" }, { clipPath: FULL, duration: 1 }, t)
-              .fromTo(q(".res-closing p"), { opacity: 0 }, { opacity: 1, duration: 0.5 }, t + 0.6)
-              .to({}, { duration: 0.5 });
+            // Short hold on the last photo before the pin releases.
+            tl.to({}, { duration: 0.5 });
           }
         );
       });
@@ -150,14 +143,10 @@ export default function Residences() {
               className="res-img object-cover"
             />
             {scene.reveal === "base" && (
-              <div className="res-title absolute inset-0 flex items-center justify-center bg-black/35">
-                <h2 className="text-7xl max-lg:text-6xl max-md:text-4xl font-medium leading-none text-white">RESIDENCE</h2>
-              </div>
-            )}
-            {scene.reveal === "card" && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/55 px-5">
-                <p className="res-text max-w-[52vw] max-lg:max-w-[44rem] max-md:max-w-[85vw] text-center font-heading uppercase text-white text-4xl max-lg:text-3xl max-md:text-2xl leading-tight">
-                  {sentences[scene.sentence]}
+              <div className="res-title absolute inset-0 flex flex-col justify-end gap-[1.5vw] max-lg:gap-5 bg-[linear-gradient(#0000_30%,#0c0c0cd9)] px-32 lg:max-xl:px-20 max-lg:px-20 max-md:px-10 max-sm:px-5 pb-[8vw] max-lg:pb-24 max-md:pb-20">
+                <h2 className="text-6xl lg:max-xl:text-5xl max-lg:text-5xl max-md:text-3xl font-medium leading-none text-white">RESIDENCE</h2>
+                <p className="max-w-[55vw] max-lg:max-w-[38rem] max-md:max-w-none text-xl max-lg:text-lg max-md:text-base text-white/90">
+                  {villa.summary}
                 </p>
               </div>
             )}
@@ -168,12 +157,6 @@ export default function Residences() {
         );
       })}
 
-      {/* Closing statement */}
-      <div className={`res-closing ${layer} bg-khaki flex items-center justify-center motion-safe:[clip-path:inset(0%_50%_0%_50%)]`}>
-        <p className="max-w-[50vw] max-lg:max-w-[40rem] max-md:max-w-[85vw] px-5 text-center font-heading uppercase text-ink text-5xl max-lg:text-4xl max-md:text-2xl leading-tight">
-          {closing}
-        </p>
-      </div>
 
       {/* Portalled to <body>: ScrollTrigger transforms the pinned section, which would
           otherwise trap this fixed overlay inside it and clip it. */}
