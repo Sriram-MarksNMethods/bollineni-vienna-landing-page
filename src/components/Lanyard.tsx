@@ -33,7 +33,7 @@ const BACK_UV_RECT = { x: 0.5, y: 0, w: 0.5, h: 0.757 };
 // strap's three rope segments (React Bits uses 1).
 const ANCHOR_FROM_LEFT = { desktop: 1.3, mobile: 0.75 };
 const CARD_SCALE = { desktop: 0.8, mobile: 0.45 };
-const STRAP_SEGMENT = { desktop: 0.6, mobile: 0.2 };
+const STRAP_SEGMENT = { desktop: 0.35, mobile: 0.14 };
 // Strap thickness in world units.
 const STRAP_WIDTH = { desktop: 0.2, mobile: 0.12 };
 
