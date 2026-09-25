@@ -165,7 +165,7 @@ export default function ContactForm({ idPrefix }: { idPrefix: string }) {
 
       <p className="text-center text-xs text-ink/60">
         By submitting, you agree to our{" "}
-        <Link href="/privacy-policy" className="ml-1 underline underline-offset-2 hover:text-ink">
+        <Link href="/privacy-policy" className="ml-1 text-xs underline underline-offset-2 hover:text-ink">
           Privacy Policy
         </Link>
         .

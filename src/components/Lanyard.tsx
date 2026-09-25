@@ -94,6 +94,8 @@ async function drawCardFaces(): Promise<{ front: string; back: string }> {
     // Just the call to action between two rules, in bold sans (Cormorant's
     // fine strokes blur on a small, moving 3D card).
     ctx.fillStyle = "#0c0c0c";
+    ctx.font = `700 88px ${body}`;
+    ctx.fillText("DRAG THIS!", W / 2, 285);
     ctx.fillRect(90, 390, W - 180, 14);
     // Largest size at which "ENQUIRE" still fits inside the border.
     ctx.font = `700 100px ${body}`;
@@ -396,7 +398,7 @@ function Band({
           color="#0c0c0c"
           depthTest={false}
           resolution={isMobile ? [1000, 2000] : [1000, 1000]}
-          lineWidth={1}
+          lineWidth={0.6}
         />
       </mesh>
     </>
