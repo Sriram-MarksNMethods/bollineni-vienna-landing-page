@@ -25,16 +25,16 @@ export default function About() {
         <div className="w-full pt-24 max-lg:pt-20 max-md:pt-14"></div>
 
         {/* Three columns: heading (sized to its three lines) | building photo
-            (1200 x 1500, 4:5) | about copy. Stacks in the same order below 992px. */}
+            (1500 x 1700) | about copy. Stacks in the same order below 992px. */}
         <div className="grid grid-cols-[auto_0.9fr_1fr] gap-[3vw] items-start max-lg:grid-cols-1 max-lg:gap-8">
-          <h2 className="-ml-[2vw] max-lg:ml-0 text-[3vw] max-lg:text-4xl max-md:text-3xl font-medium leading-[1.05] whitespace-nowrap">
+          <h2 className="self-center max-lg:self-start -ml-[2vw] max-lg:ml-0 text-[3vw] max-lg:text-4xl max-md:text-3xl font-medium leading-[1.05] whitespace-nowrap">
             LOW-DENSITY GATED
             <br />
             COMMUNITY IN
             <br />
             BENGALURU
           </h2>
-          <div className="relative w-full aspect-[4/5] overflow-hidden">
+          <div className="relative w-full aspect-[15/17] overflow-hidden">
             <Image
               src="/images/hero.jpg"
               alt="Bollineni Vienna residential towers at dusk."
