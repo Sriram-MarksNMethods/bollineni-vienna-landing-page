@@ -154,17 +154,22 @@ export default function Lanyard({ onOpen }: { onOpen: () => void }) {
 
   return (
     <>
-      <svg className="pointer-events-none fixed inset-0 z-[39] h-full w-full mix-blend-difference" aria-hidden="true">
+      <svg className="pointer-events-none fixed top-0 left-0 z-[39] h-lvh w-full mix-blend-difference" aria-hidden="true">
         <path ref={strapPath} fill="none" stroke="white" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
       {/* Full-screen canvas, so the card can be dragged anywhere without being
           cut off at the canvas edge. The canvas ignores the mouse; R3F listens
           on <body> instead, so only the card mesh itself is interactive and the
           page underneath stays clickable. */}
-      <div className="pointer-events-none fixed inset-0 z-40">
+      {/* Both layers use the large viewport height (100lvh), which stays put
+        when a phone's address bar shows or hides during scroll. With
+        inset-0 they resized mid-scroll, and the idle card and the strap
+        were redrawn at different moments, so the strap looked detached. */}
+    <div className="pointer-events-none fixed top-0 left-0 z-40 h-lvh w-full">
         <Canvas
           eventSource={document.body}
           eventPrefix="client"
+        resize={{ scroll: false }}
           style={{ pointerEvents: "none" }}
           camera={{ position: [0, 0, 30], fov: 20 }}
           dpr={[1, 1.5]}
