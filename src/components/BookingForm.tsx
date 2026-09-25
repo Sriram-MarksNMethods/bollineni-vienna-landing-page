@@ -13,7 +13,7 @@ export default function BookingForm() {
         </div>
         <div className="w-full pt-14 max-lg:pt-12 max-md:pt-10"></div>
         <div className="flex justify-center">
-          <div className="w-1/2 mb-0 max-lg:w-[95%]">
+          <div className="w-full max-w-[36rem]">
             <ContactForm idPrefix="book" />
           </div>
         </div>

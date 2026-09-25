@@ -146,58 +146,56 @@ p, a {
 
 } /* end @layer base */
 
-/* react-phone-input-2 theming for the contact form, to match the site's
-   other form fields (see BookingForm.tsx `inputClass`). */
+/* react-phone-input-2 theming for the contact form. The rounded box around it
+   (border, background, focus colour) comes from ContactForm's boxClass; the
+   library's own input is made transparent inside it. A small "Phone" label
+   sits at the top of the box, so the flag, dial code, divider and typed
+   number are all shifted down by the same 0.5rem.
+   Everything here is in rem, not vw: the flag icon, chevron and dial-code
+   text are fixed-size, so vw offsets would drift out of line with them. */
 .contact-phone-input .react-tel-input {
   font-family: inherit;
 }
 
 .contact-phone-input .react-tel-input .form-control {
   width: 100%;
-  height: auto;
-  min-height: 3.5vw;
-  background-color: var(--color-beige);
-  border: 1px solid #ccc;
-  border-radius: 0.75vw;
-  padding: 1vw 1.25vw 1vw 5rem;
-  font-size: 0.875rem;
-  color: #333;
+  height: 3.5rem;
+  background-color: transparent;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 1.25rem 1rem 0.25rem 5.25rem;
+  font-size: 0.95rem;
+  color: var(--color-ink);
 }
 
-/* The flag icon, chevron, and dial-code text are all fixed-pixel-sized
-   (react-tel-input's own assets + a fixed font-size), so this whole
-   cluster is positioned in rem, not vw -- vw offsets here would drift out
-   of alignment with the fixed-size content as the viewport gets wider. */
+.contact-phone-input .react-tel-input .form-control:focus {
+  box-shadow: none;
+}
+
 .contact-phone-input .contact-phone-dialcode {
   position: absolute;
   left: 2.25rem;
-  top: 50%;
+  top: calc(50% + 0.5rem);
   transform: translateY(-50%);
-  font-size: 0.875rem;
-  color: #333;
+  font-size: 0.95rem;
+  color: var(--color-ink);
   pointer-events: none;
 }
 
 .contact-phone-input .contact-phone-divider {
   position: absolute;
   left: 4.75rem;
-  top: 25%;
-  bottom: 25%;
+  top: calc(25% + 0.5rem);
+  bottom: 18%;
   width: 1px;
-  background-color: #ccc;
+  background-color: rgb(12 12 12 / 0.15);
   pointer-events: none;
 }
 
-.contact-phone-input .react-tel-input .form-control:focus {
-  border-color: #3898ec;
-  box-shadow: none;
-}
-
-/* Blend the flag/dial-code button into the surrounding pill instead of
-   rendering it as its own separately-bordered box. Widened so the flag,
-   dial code, and dropdown chevron all sit inside one click target, with
-   the chevron trailing the code (flag -> code -> chevron), not leading it. */
+/* Flag + dial code + chevron form one borderless click target inside the box,
+   with the chevron trailing the code (flag -> code -> chevron). */
 .contact-phone-input .react-tel-input .flag-dropdown {
+  top: 1rem;
   width: 4rem;
   background-color: transparent;
   border: none;
@@ -205,16 +203,12 @@ p, a {
 
 .contact-phone-input .react-tel-input .selected-flag {
   width: 4rem;
-  padding-left: 0.75rem;
+  padding-left: 1rem;
   background-color: transparent;
 }
 
-/* .arrow is nested inside .flag (the flag-icon span), not a sibling of
-   .selected-flag, so its `left` is measured from the flag icon's own box
-   -- not from the wrapper the way .contact-phone-dialcode/-divider are.
-   Account for the flag icon's own offset (0.75rem padding + ~1rem icon
-   width) when placing it, or it drifts out of the flag -> code -> chevron
-   -> divider order. */
+/* .arrow is nested inside the flag icon, so `left` is measured from the
+   icon's own box (1rem padding + ~1rem icon), not from the wrapper. */
 .contact-phone-input .react-tel-input .selected-flag .arrow {
   left: 3.4rem;
 }
@@ -227,34 +221,19 @@ p, a {
 }
 
 .contact-phone-input .react-tel-input .country-list {
-  border-radius: 0.5vw;
-  box-shadow: 0 0.25vw 1vw rgba(0, 0, 0, 0.15);
+  border-radius: 0.75rem;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
 }
 
 .contact-phone-input .react-tel-input .country-list .search {
-  padding: 0.5vw;
+  padding: 0.5rem;
 }
 
 .contact-phone-input .react-tel-input .country-list .search-box {
-  border-radius: 0.4vw;
+  border-radius: 0.5rem;
   border: 1px solid #ccc;
   margin-left: 0;
   width: 100%;
-}
-
-@media (max-width: 991px) {
-  .contact-phone-input .react-tel-input .form-control {
-    min-height: 3rem;
-    border-radius: 0.5rem;
-  }
-
-  .contact-phone-input .react-tel-input .country-list {
-    border-radius: 0.5rem;
-  }
-
-  .contact-phone-input .react-tel-input .country-list .search-box {
-    border-radius: 0.35rem;
-  }
 }
 
 /* Amenities icons: an infinite draw-in/fill/erase cycle (used with the

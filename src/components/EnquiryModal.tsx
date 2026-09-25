@@ -47,25 +47,28 @@ export default function EnquiryModal({ open, onClose }: { open: boolean; onClose
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
-      className="m-auto p-0 bg-transparent backdrop:bg-ink/70 max-w-none"
+      className="m-auto p-0 bg-transparent max-w-none backdrop:bg-ink/60 backdrop:backdrop-blur-sm"
     >
       <div
         ref={panelRef}
-        className="relative bg-beige text-ink w-[min(92vw,40rem)] max-h-[90vh] overflow-y-auto rounded-[1vw] max-lg:rounded-2xl p-[2.5vw] max-lg:p-8 max-sm:p-5"
+        className="relative w-[min(92vw,30rem)] max-h-[90vh] overflow-y-auto rounded-2xl bg-beige p-8 text-ink shadow-2xl max-sm:p-5"
       >
         <button
           type="button"
           aria-label="Close"
           onClick={onClose}
-          className="absolute top-4 right-4 cursor-pointer text-ink"
+          className="absolute top-5 right-5 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-ink/15 text-ink transition-colors hover:bg-ink hover:text-beige"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
           </svg>
         </button>
-        <h2 id="enquire-heading" className="text-5xl max-md:text-3xl font-medium leading-none mb-[1.5vw] max-lg:mb-6">
-          Enquire Now
-        </h2>
+        <div className="mb-6 pr-12">
+          <h2 id="enquire-heading" className="text-4xl max-sm:text-3xl font-medium leading-none">
+            Enquire Now
+          </h2>
+          <p className="mt-2 text-sm text-ink/60">Bollineni Vienna · Kogilu, North Bengaluru</p>
+        </div>
         {everOpened && <ContactForm idPrefix="enquire" />}
       </div>
     </dialog>
