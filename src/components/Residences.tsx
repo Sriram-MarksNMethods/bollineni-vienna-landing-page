@@ -11,30 +11,30 @@ import { onLoaderDone } from "@/lib/loaderDone";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-// All 9 gallery photos, one after another, each revealed on top of the last:
-// "wipe" = a thin vertical slice that widens to full screen,
-// "zoom" = pops in small in the centre, then grows to full screen,
-// "card" = pops in as a wide card, then grows to full screen.
+// All 9 gallery photos, one after another, each revealed on top of the last.
+// The reveals alternate:
+// "vertical"   = a thin line grows to full height in the centre, then widens,
+// "horizontal" = a thin line grows to full width in the centre, then opens up.
 // The first photo is the opening frame, with the section title and summary.
 const scenes = [
   { image: 0, reveal: "base" },
-  { image: 1, reveal: "wipe" },
-  { image: 2, reveal: "zoom" },
-  { image: 3, reveal: "zoom" },
-  { image: 4, reveal: "card" },
-  { image: 5, reveal: "wipe" },
-  { image: 6, reveal: "zoom" },
-  { image: 7, reveal: "card" },
-  { image: 8, reveal: "zoom" },
+  { image: 1, reveal: "vertical" },
+  { image: 2, reveal: "horizontal" },
+  { image: 3, reveal: "vertical" },
+  { image: 4, reveal: "horizontal" },
+  { image: 5, reveal: "vertical" },
+  { image: 6, reveal: "horizontal" },
+  { image: 7, reveal: "vertical" },
+  { image: 8, reveal: "horizontal" },
 ] as const;
 
-// Start (hidden) and middle (small) clip-paths per reveal. Every value spells
-// out all four insets: the browser shortens computed inset() values, and
-// tweening between strings with different numbers of values goes lopsided.
+// Start (hidden), middle (the full-length line) clip-paths per reveal. Every
+// value spells out all four insets: the browser shortens computed inset()
+// values, and tweening between strings with different numbers of values goes
+// lopsided.
 const clips = {
-  wipe: ["inset(50% 49.9% 50% 49.9%)", "inset(12% 49.9% 12% 49.9%)"],
-  zoom: ["inset(50% 50% 50% 50%)", "inset(38% 38% 38% 38%)"],
-  card: ["inset(50% 50% 50% 50%)", "inset(32% 26% 32% 26%)"],
+  vertical: ["inset(50% 49.8% 50% 49.8%)", "inset(0% 49.8% 0% 49.8%)"],
+  horizontal: ["inset(49.8% 50% 49.8% 50%)", "inset(49.8% 0% 49.8% 0%)"],
 } as const;
 const FULL = "inset(0% 0% 0% 0%)";
 
@@ -42,9 +42,8 @@ const FULL = "inset(0% 0% 0% 0%)";
 // clips[reveal][0] above.
 const startClass = {
   base: "",
-  wipe: "motion-safe:[clip-path:inset(50%_49.9%_50%_49.9%)]",
-  zoom: "motion-safe:[clip-path:inset(50%_50%_50%_50%)]",
-  card: "motion-safe:[clip-path:inset(50%_50%_50%_50%)]",
+  vertical: "motion-safe:[clip-path:inset(50%_49.8%_50%_49.8%)]",
+  horizontal: "motion-safe:[clip-path:inset(49.8%_50%_49.8%_50%)]",
 } as const;
 
 // Full-screen layer; with reduced motion the layers just stack.
@@ -97,13 +96,13 @@ export default function Residences() {
               if (scene.reveal === "base") return;
               const el = q(`.res-scene-${i}`);
               const img = q(`.res-scene-${i} .res-img`);
-              const [hidden, small] = clips[scene.reveal];
-              const popTime = scene.reveal === "wipe" ? 0.4 : scene.reveal === "card" ? 0.5 : 0.3;
+              const [hidden, line] = clips[scene.reveal];
 
-              tl.fromTo(el, { clipPath: hidden }, { clipPath: small, duration: popTime }, t)
-                .fromTo(el, { clipPath: small }, { clipPath: FULL, duration: 1.1 }, t + popTime)
-                .fromTo(img, { scale: scene.reveal === "wipe" ? 1.15 : 1.4 }, { scale: 1, duration: popTime + 1.1 }, t);
-              t += popTime + 1.3;
+              // The line grows to full length, then opens out to full screen.
+              tl.fromTo(el, { clipPath: hidden }, { clipPath: line, duration: 0.5 }, t)
+                .fromTo(el, { clipPath: line }, { clipPath: FULL, duration: 1.1 }, t + 0.5)
+                .fromTo(img, { scale: 1.15 }, { scale: 1, duration: 1.6 }, t);
+              t += 1.8;
             });
 
             // Short hold on the last photo before the pin releases.
