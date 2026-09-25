@@ -45,7 +45,7 @@ export default function Hero() {
                   anticipatePin: 1,
                 },
               })
-              // 1 → 2: pool photo settles, title lifts away, ink line opens
+              // 1 → 2: pool photo settles, title lifts away, a thin slice of the balcony photo opens
               .to(q(".hero-pool-img"), { scale: 1.08, duration: 1 }, 0)
               .to(q(".hero-pool-text"), { opacity: 0, y: -40, duration: 0.5 }, 0.3)
               .fromTo(q(".hero-ink"), { clipPath: "inset(50% 49.9% 50% 49.9%)" }, { clipPath: "inset(12% 49.9% 12% 49.9%)", duration: 0.4 }, 0.5)
@@ -58,7 +58,7 @@ export default function Hero() {
               .fromTo(q(".hero-aerial"), { clipPath: "inset(50% 50% 50% 50%)" }, { clipPath: "inset(40% 40% 40% 40%)", duration: 0.3 }, 3.3)
               .fromTo(q(".hero-aerial"), { clipPath: "inset(40% 40% 40% 40%)" }, { clipPath: full, duration: 1.1 }, 3.6)
               .fromTo(q(".hero-aerial-img"), { scale: 1.4 }, { scale: 1, duration: 1.4 }, 3.3)
-              // 4: ink card pops up over the aerial view, then grows to full screen with the hero line
+              // 4: a photo card pops up over the aerial view, then grows to full screen with the hero line
               .fromTo(q(".hero-card"), { clipPath: "inset(50% 50% 50% 50%)" }, { clipPath: "inset(32% 26% 32% 26%)", duration: 0.5 }, 4.5)
               .fromTo(q(".hero-card"), { clipPath: "inset(32% 26% 32% 26%)" }, { clipPath: full, duration: 1 }, 5)
               .fromTo(q(".hero-card-text"), { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6 }, 5.1)
@@ -103,8 +103,16 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* 2. Ink wipe */}
-      <div className={`hero-ink ${layer} bg-ink motion-safe:[clip-path:inset(50%_49.9%_50%_49.9%)] motion-reduce:hidden`} />
+      {/* 2. Wipe onto the balcony photo */}
+      <div className={`hero-ink ${layer} bg-ink motion-safe:[clip-path:inset(50%_49.9%_50%_49.9%)]`}>
+        <Image
+          src="/images/gallery/gallery-03.jpg"
+          alt="Sunset view from a balcony at Bollineni Vienna."
+          fill
+          sizes="100vw"
+          className="object-cover"
+        />
+      </div>
 
       {/* 3a. Living room */}
       <div className={`hero-living ${layer} motion-safe:[clip-path:inset(50%_50%_50%_50%)]`}>
@@ -128,9 +136,18 @@ export default function Hero() {
         />
       </div>
 
-      {/* 4. Ink card */}
+      {/* 4. Photo card with the hero line */}
       <div className={`hero-card ${layer} bg-ink flex items-center justify-center motion-safe:[clip-path:inset(50%_50%_50%_50%)]`}>
-        <p className="hero-card-text max-w-[52vw] max-lg:max-w-[44rem] max-md:max-w-[85vw] px-5 text-center font-heading uppercase text-white text-4xl max-lg:text-3xl max-md:text-2xl leading-tight">
+        <Image
+          src="/images/gallery/gallery-05.jpg"
+          alt="The Canopy Court at Bollineni Vienna."
+          fill
+          sizes="100vw"
+          className="object-cover"
+        />
+        {/* Darkens the photo so the white text reads */}
+        <div className="absolute inset-0 bg-black/55" />
+        <p className="hero-card-text relative max-w-[52vw] max-lg:max-w-[44rem] max-md:max-w-[85vw] px-5 text-center font-heading uppercase text-white text-4xl max-lg:text-3xl max-md:text-2xl leading-tight">
           Expansive 4 & 5 BHK residences, lush greens, and curated amenities come together in a refined address where sophistication meets serenity.
         </p>
       </div>
