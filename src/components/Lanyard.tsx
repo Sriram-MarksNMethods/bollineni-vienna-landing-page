@@ -34,19 +34,16 @@ const STRAP_PNG = "/lanyard/lanyard.png";
 const FRONT_UV_RECT = { x: 0, y: 0, w: 0.5, h: 0.755 };
 const BACK_UV_RECT = { x: 0.5, y: 0, w: 0.5, h: 0.757 };
 
-// Length of each of the strap's three rope segments (React Bits uses 1).
-const STRAP_SEGMENT = 0.6;
-// Distance (world units) from the canvas's left edge to the strap's anchor.
-const ANCHOR_FROM_LEFT = 1.3;
-
-// Where the logo artwork actually sits inside its 1920 x 1080 SVG canvas
-// (icon + wordmark); the rest of the canvas is empty padding.
-const LOGO_CROP = { x: 644, y: 152, w: 632, h: 776 };
-
-// Card size relative to the React Bits original (which is ~120px wide on a
-// 1080p screen — too small to read). The model, its collider and the joint
-// that holds it all scale together.
-const CARD_SCALE = 1.3;
+// Distance (world units) from the screen's left edge to the strap's anchor,
+// and the card's size relative to the React Bits original (~120px wide on a
+// 1080p desktop). Phones get a smaller card that hangs closer to the edge.
+// The model, its collider and the joint that holds it all scale together.
+// On phones the strap is also shorter, so the card sits in the top-left
+// corner above the hero title. STRAP_SEGMENT is the length of each of the
+// strap's three rope segments (React Bits uses 1).
+const ANCHOR_FROM_LEFT = { desktop: 1.3, mobile: 0.75 };
+const CARD_SCALE = { desktop: 1, mobile: 0.52 };
+const STRAP_SEGMENT = { desktop: 0.6, mobile: 0.2 };
 
 // Pulling the card this far below where the drag started (world units) and
 // letting go opens the popup.
@@ -69,16 +66,6 @@ async function drawCardFaces(): Promise<{ front: string; back: string }> {
   await Promise.allSettled([
     document.fonts.load(`700 30px ${first(body)}`),
   ]);
-
-  const logo = new Image();
-  logo.src = "/images/bollineni_vienna.svg";
-  await logo.decode();
-  // The SVG decodes at a tiny intrinsic size (267 x 150), so rasterize it at
-  // its full 1920 x 1080 viewBox first and crop from that sharp copy.
-  const logoFull = document.createElement("canvas");
-  logoFull.width = 1920;
-  logoFull.height = 1080;
-  logoFull.getContext("2d")!.drawImage(logo, 0, 0, 1920, 1080);
 
   // Same proportions as the card face's region in the model's texture atlas
   // (~839 x 1266 px), so the text isn't resampled.
@@ -105,24 +92,17 @@ async function drawCardFaces(): Promise<{ front: string; back: string }> {
     ctx.beginPath();
     ctx.roundRect(30, 30, W - 60, H - 60, 36);
     ctx.stroke();
-    // Logo cropped to its artwork and drawn large. Drawing it a few times,
-    // nudged by a couple of pixels, thickens its fine strokes so they survive
-    // being shrunk onto a small card.
-    const logoH = 400;
-    const logoW = (LOGO_CROP.w / LOGO_CROP.h) * logoH;
-    for (const [dx, dy] of [[0, 0], [-2, 0], [2, 0], [0, -2], [0, 2]]) {
-      ctx.drawImage(logoFull, LOGO_CROP.x, LOGO_CROP.y, LOGO_CROP.w, LOGO_CROP.h, (W - logoW) / 2 + dx, 120 + dy, logoW, logoH);
-    }
+    // Just the call to action between two rules, in bold sans (Cormorant's
+    // fine strokes blur on a small, moving 3D card).
     ctx.fillStyle = "#0c0c0c";
-    ctx.fillRect(90, 555, W - 180, 12);
-    // Bold sans for the call to action: Cormorant's fine strokes blur on a small,
-    // moving 3D card.
-    ctx.font = `700 150px ${body}`;
-    ctx.fillText("ENQUIRE", W / 2, 720);
-    ctx.fillText("NOW!", W / 2, 880);
-    ctx.fillRect(90, 985, W - 180, 12);
-    ctx.font = `700 62px ${body}`;
-    ctx.fillText("PULL TO OPEN", W / 2, 1110);
+    ctx.fillRect(90, 390, W - 180, 14);
+    // Largest size at which "ENQUIRE" still fits inside the border.
+    ctx.font = `700 100px ${body}`;
+    const fontSize = Math.min(190, Math.floor((100 * (W - 200)) / ctx.measureText("ENQUIRE").width));
+    ctx.font = `700 ${fontSize}px ${body}`;
+    ctx.fillText("ENQUIRE", W / 2, 555);
+    ctx.fillText("NOW!", W / 2, 755);
+    ctx.fillRect(90, 890, W - 180, 14);
   });
 
   const back = make((ctx) => {
@@ -180,7 +160,9 @@ export default function Lanyard({ onOpen }: { onOpen: () => void }) {
       >
         <ambientLight intensity={Math.PI} />
         <Physics gravity={[0, -40, 0]} timeStep={isMobile ? 1 / 30 : 1 / 60}>
-          <Band isMobile={isMobile} frontImage={faces.front} backImage={faces.back} onOpen={onOpen} />
+          {/* Remount on a phone/desktop switch: the joints are created once,
+              so a new card size needs a fresh rig. */}
+          <Band key={isMobile ? "mobile" : "desktop"} isMobile={isMobile} frontImage={faces.front} backImage={faces.back} onOpen={onOpen} />
         </Physics>
         <Environment blur={0.75}>
           <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
@@ -216,7 +198,10 @@ function Band({
   const card = useRef<RapierRigidBody>(null!);
   // Anchor near the left edge, whatever the canvas width on this screen.
   const viewportWidth = useThree((state) => state.viewport.width);
-  const anchorX = -viewportWidth / 2 + ANCHOR_FROM_LEFT;
+  const size = isMobile ? "mobile" : "desktop";
+  const cardScale = CARD_SCALE[size];
+  const strapSegment = STRAP_SEGMENT[size];
+  const anchorX = -viewportWidth / 2 + ANCHOR_FROM_LEFT[size];
   const pressRef = useRef<{ cardY: number } | null>(null);
 
   const vec = new THREE.Vector3();
@@ -293,12 +278,12 @@ function Band({
   const [dragged, drag] = useState<false | THREE.Vector3>(false);
   const [hovered, hover] = useState(false);
 
-  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], STRAP_SEGMENT]);
-  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], STRAP_SEGMENT]);
-  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], STRAP_SEGMENT]);
+  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], strapSegment]);
+  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], strapSegment]);
+  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], strapSegment]);
   useSphericalJoint(j3, card, [
     [0, 0, 0],
-    [0, 1.45 * CARD_SCALE, 0],
+    [0, 1.45 * cardScale, 0],
   ]);
 
   useEffect(() => {
@@ -377,20 +362,20 @@ function Band({
       {/* Anchor sits just above the top edge so the strap hangs from off-screen. */}
       <group position={[anchorX, 5.6, 0]}>
         <RigidBody ref={fixed} {...segmentProps} type="fixed" />
-        <RigidBody position={[STRAP_SEGMENT * 0.5, 0, 0]} ref={j1} {...segmentProps} type="dynamic">
+        <RigidBody position={[strapSegment * 0.5, 0, 0]} ref={j1} {...segmentProps} type="dynamic">
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[STRAP_SEGMENT, 0, 0]} ref={j2} {...segmentProps} type="dynamic">
+        <RigidBody position={[strapSegment, 0, 0]} ref={j2} {...segmentProps} type="dynamic">
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[STRAP_SEGMENT * 1.5, 0, 0]} ref={j3} {...segmentProps} type="dynamic">
+        <RigidBody position={[strapSegment * 1.5, 0, 0]} ref={j3} {...segmentProps} type="dynamic">
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[STRAP_SEGMENT * 2, 0, 0]} ref={card} {...segmentProps} type={dragged ? "kinematicPosition" : "dynamic"}>
-          <CuboidCollider args={[0.8 * CARD_SCALE, 1.125 * CARD_SCALE, 0.01]} />
+        <RigidBody position={[strapSegment * 2, 0, 0]} ref={card} {...segmentProps} type={dragged ? "kinematicPosition" : "dynamic"}>
+          <CuboidCollider args={[0.8 * cardScale, 1.125 * cardScale, 0.01]} />
           <group
-            scale={2.25 * CARD_SCALE}
-            position={[0, -1.2 * CARD_SCALE, -0.05]}
+            scale={2.25 * cardScale}
+            position={[0, -1.2 * cardScale, -0.05]}
             onPointerOver={(e: ThreeEvent<PointerEvent>) => hover(!isCovered(e))}
             onPointerOut={() => hover(false)}
             onPointerUp={onPointerUp}
