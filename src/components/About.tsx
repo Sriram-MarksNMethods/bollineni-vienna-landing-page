@@ -1,22 +1,14 @@
 import Image from "next/image";
 import { useVilla } from "./Villa";
-
-// Border sides per detail-item position (1-indexed), across breakpoints —
-// same values used by VillaInfo on the villa detail pages.
-const detailBorders = [
-  "border-r-[0.1vw] border-black max-lg:border-r max-lg:border-b",
-  "border-r-[0.1vw] border-black max-lg:border-r-0 max-lg:border-b",
-  "border-r-[0.1vw] border-black max-lg:border-r",
-  "",
-];
+import StatsStrip from "./StatsStrip";
 
 export default function About() {
   const villa = useVilla();
   const details = [
-    { value: villa.acres, label: "Acres" },
-    { value: villa.units, label: "Units" },
-    { value: villa.bhkResidences, label: "BHK Residences" },
-    { value: villa.floors, label: "Floors" },
+    { value: String(villa.acres), label: "Acres" },
+    { value: String(villa.units), label: "Units" },
+    { value: String(villa.bhkResidences), label: "BHK Residences" },
+    { value: String(villa.floors), label: "Floors" },
   ];
 
   return (
@@ -59,19 +51,7 @@ export default function About() {
         </div>
         <div className="w-full pt-24 max-lg:pt-20 max-md:pt-14"></div>
 
-        <div className="border-[0.1vw] border-black rounded-[1.5vw] grid grid-cols-4 max-lg:grid-cols-2 max-lg:grid-rows-[auto_auto]">
-          {details.map((detail, index) => (
-            <div
-              key={detail.label}
-              className={`flex flex-col justify-center items-center py-[1.5vw] px-[1vw] max-lg:py-6 max-lg:px-4 ${detailBorders[index]}`}
-            >
-              <div className="overflow-hidden">
-                <div className="text-3xl lg:max-xl:text-2xl max-lg:text-2xl max-md:text-xl font-medium">{detail.value}</div>
-              </div>
-              <div className="text-2xl max-lg:text-xl max-md:text-base text-center">{detail.label}</div>
-            </div>
-          ))}
-        </div>
+        <StatsStrip stats={details} />
 
         <div className="w-full pt-24 max-lg:pt-20 max-md:pt-14"></div>
       </div>
