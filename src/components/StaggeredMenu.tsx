@@ -132,6 +132,8 @@ export default function StaggeredMenu() {
 
   const setMenu = useCallback(
     (next: boolean) => {
+      // The panel goes inert when closed, which would drop focus to <body>.
+      if (!next && panelRef.current?.contains(document.activeElement)) toggleRef.current?.focus();
       setOpen(next);
       if (next) playOpen();
       else playClose();

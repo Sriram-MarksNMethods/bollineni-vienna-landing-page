@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -192,59 +193,63 @@ export default function Residences() {
         <Strip gallery={gallery} onOpen={setLightboxIndex} />
       </div>
 
-      {lightboxIndex !== null && (
-        <div
-          className="fixed inset-0 z-[100] bg-black/90 flex flex-col items-center justify-center p-[4vw] max-lg:p-8"
-          onClick={() => setLightboxIndex(null)}
-        >
-          <button
-            aria-label="Close"
-            onClick={(e) => {
-              e.stopPropagation();
-              setLightboxIndex(null);
-            }}
-            className="absolute top-[2vw] right-[2vw] max-lg:top-6 max-lg:right-6 text-white cursor-pointer"
+      {/* Portalled to <body>: ScrollTrigger transforms the pinned section, which would
+          otherwise trap this fixed overlay inside it and clip it. */}
+      {lightboxIndex !== null &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[100] bg-black/90 flex flex-col items-center justify-center p-[4vw] max-lg:p-8"
+            onClick={() => setLightboxIndex(null)}
           >
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-            </svg>
-          </button>
-          <button
-            aria-label="Previous image"
-            onClick={(e) => {
-              e.stopPropagation();
-              showPrev();
-            }}
-            className="absolute left-[2vw] max-lg:left-4 text-white cursor-pointer"
-          >
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M15 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-          <button
-            aria-label="Next image"
-            onClick={(e) => {
-              e.stopPropagation();
-              showNext();
-            }}
-            className="absolute right-[2vw] max-lg:right-4 text-white cursor-pointer"
-          >
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-          <img
-            src={gallery[lightboxIndex].src}
-            alt={gallery[lightboxIndex].name}
-            title={gallery[lightboxIndex].name}
-            className="max-h-[80vh] max-w-[85vw] object-contain"
-            onClick={(e) => e.stopPropagation()}
-          />
-          <div className="text-white text-2xl max-lg:text-xl max-md:text-base mt-[1.5vw] max-lg:mt-6">
-            {String(lightboxIndex + 1).padStart(2, "0")} — {gallery[lightboxIndex].name}
-          </div>
-        </div>
-      )}
+            <button
+              aria-label="Close"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxIndex(null);
+              }}
+              className="absolute top-[2vw] right-[2vw] max-lg:top-6 max-lg:right-6 text-white cursor-pointer"
+            >
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+              </svg>
+            </button>
+            <button
+              aria-label="Previous image"
+              onClick={(e) => {
+                e.stopPropagation();
+                showPrev();
+              }}
+              className="absolute left-[2vw] max-lg:left-4 text-white cursor-pointer"
+            >
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M15 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            <button
+              aria-label="Next image"
+              onClick={(e) => {
+                e.stopPropagation();
+                showNext();
+              }}
+              className="absolute right-[2vw] max-lg:right-4 text-white cursor-pointer"
+            >
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            <img
+              src={gallery[lightboxIndex].src}
+              alt={gallery[lightboxIndex].name}
+              title={gallery[lightboxIndex].name}
+              className="max-h-[80vh] max-w-[85vw] object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <div className="text-white text-2xl max-lg:text-xl max-md:text-base mt-[1.5vw] max-lg:mt-6">
+              {String(lightboxIndex + 1).padStart(2, "0")} — {gallery[lightboxIndex].name}
+            </div>
+          </div>,
+          document.body
+        )}
     </section>
   );
 }

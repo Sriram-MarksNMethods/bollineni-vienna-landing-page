@@ -40,6 +40,12 @@ const PULL_TO_OPEN = 1.5;
 // Pointer movement under this many pixels between down and up counts as a click.
 const CLICK_SLOP_PX = 6;
 
+// R3F listens on <body>, so it sees pointer events even when a link, button,
+// the open menu or the popup is drawn over the card. Ignore those.
+const BLOCKING_ELEMENTS = "a,button,input,select,textarea,label,dialog,#staggered-menu-panel";
+const isCovered = (e: ThreeEvent<PointerEvent>) =>
+  !!(e.nativeEvent.target as Element | null)?.closest?.(BLOCKING_ELEMENTS);
+
 // Draws the card faces with the site's own Cormorant/Jakarta fonts.
 async function drawCardFaces(): Promise<{ front: string; back: string }> {
   const root = getComputedStyle(document.documentElement);
@@ -300,9 +306,17 @@ function Band({
 
 
   const onPointerDown = (e: ThreeEvent<PointerEvent>) => {
+    if (isCovered(e)) return;
     (e.target as Element).setPointerCapture(e.pointerId);
     pressRef.current = { x: e.clientX, y: e.clientY, cardY: card.current.translation().y };
     drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())));
+  };
+
+  // A cancelled touch (e.g. the OS takes over the gesture) must not leave the
+  // card "held", or the page stays unscrollable.
+  const cancelDrag = () => {
+    pressRef.current = null;
+    drag(false);
   };
 
   const onPointerUp = (e: ThreeEvent<PointerEvent>) => {
@@ -337,10 +351,12 @@ function Band({
           <group
             scale={2.25}
             position={[0, -1.2, -0.05]}
-            onPointerOver={() => hover(true)}
+            onPointerOver={(e: ThreeEvent<PointerEvent>) => hover(!isCovered(e))}
             onPointerOut={() => hover(false)}
             onPointerUp={onPointerUp}
             onPointerDown={onPointerDown}
+            onPointerCancel={cancelDrag}
+            onLostPointerCapture={cancelDrag}
           >
             <mesh geometry={nodes.card.geometry}>
               <meshPhysicalMaterial

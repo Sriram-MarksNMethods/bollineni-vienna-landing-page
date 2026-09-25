@@ -34,6 +34,8 @@ export function unlockScroll() {
     document.body.style.left = "";
     document.body.style.right = "";
     document.body.style.width = "";
-    window.scrollTo(0, savedScrollY);
+    // "instant" overrides html { scroll-behavior: smooth }, which would
+    // otherwise sweep the page up from the top (through the pinned Hero).
+    window.scrollTo({ top: savedScrollY, behavior: "instant" });
   }
 }
