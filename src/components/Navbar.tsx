@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import StaggeredMenu from "./StaggeredMenu";
 
-export default function Navbar() {
+export default function Navbar({ tone = "dark" }: { tone?: "dark" | "light" }) {
   return (
     <>
       <nav className="z-10 absolute inset-x-0 top-0">
@@ -16,7 +16,7 @@ export default function Navbar() {
                   title="Bollineni Vienna"
                   fill
                   sizes="200px"
-                  className="object-contain"
+                  className={`object-contain ${tone === "light" ? "brightness-0 invert" : ""}`}
                 />
               </div>
             </Link>
