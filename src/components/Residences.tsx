@@ -91,7 +91,11 @@ export default function Residences() {
 
             // Opening frame: the title and summary fade away first; the photo
             // reveals only start once the text is gone.
-            tl.to(q(".res-title"), { opacity: 0, y: -40, duration: 0.6 }, 0.1);
+            // fromTo, not to: a plain .to() would take the title's current
+            // opacity as its start, so if this timeline is ever rebuilt while
+            // the title is faded (e.g. resizing across a breakpoint), it would
+            // fade from 0 to 0 and never come back.
+            tl.fromTo(q(".res-title"), { opacity: 1, y: 0 }, { opacity: 0, y: -40, duration: 0.6 }, 0.1);
 
             let t = 0.9;
             scenes.forEach((scene, i) => {
