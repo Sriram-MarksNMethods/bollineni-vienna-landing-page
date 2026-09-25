@@ -46,6 +46,12 @@ html {
   }
 }
 
+/* Keep the scrollbar's space reserved so locking scroll (menu, popup) doesn't
+   shift the layout sideways. */
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   height: 100%;
   min-height: 100%;
@@ -89,7 +95,7 @@ p, a {
   counter-increment: smItem;
   content: counter(smItem, decimal-leading-zero);
   position: absolute;
-  top: 0.15em;
+  top: 0.2em;
   right: 0;
   font-family: var(--font-body);
   font-size: 0.875rem;

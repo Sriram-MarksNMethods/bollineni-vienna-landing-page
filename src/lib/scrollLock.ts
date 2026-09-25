@@ -1,26 +1,29 @@
-// Shared, ref-counted body-scroll lock. Multiple independent UI pieces (the
-// preloader, the mobile nav menu) can each hold a lock at the same time
-// without one's unlock clobbering the other's -- a plain unguarded
-// `document.body.style.overflow = ...` in each component stomps on whichever
-// one last ran its effect.
+// Shared, ref-counted page-scroll lock. Multiple independent UI pieces (the
+// preloader, the menu, the enquiry popup) can each hold a lock at the same
+// time without one's unlock clobbering the other's.
 //
-// Toggling `overflow: hidden` on html/body is NOT reliable on iOS Safari --
-// it can leave the page permanently unscrollable even after being cleared
-// (a well-documented WebKit quirk). Instead we take the body out of the
-// document flow entirely with `position: fixed`, which iOS respects
-// correctly, then restore the exact scroll position on unlock.
+// The lock must NOT change window.scrollY: the Hero and Residences scroll
+// sequences are driven by ScrollTrigger, and the old `body { position: fixed }`
+// approach dropped scrollY to 0 while locked, so the pinned scenes rewound
+// behind the menu and visibly replayed on close. `overflow: hidden` on <html>
+// keeps the scroll position; `scrollbar-gutter: stable` (globals.css) stops
+// the layout shifting when the scrollbar hides. iOS Safari can still
+// rubber-band the page under `overflow: hidden`, so touchmove is blocked too,
+// except inside the menu panel and the popup, which scroll on their own.
 let lockCount = 0;
-let savedScrollY = 0;
+
+const SCROLLABLE_WHILE_LOCKED = "#staggered-menu-panel, dialog";
+
+function blockTouchScroll(e: TouchEvent) {
+  if ((e.target as Element | null)?.closest?.(SCROLLABLE_WHILE_LOCKED)) return;
+  e.preventDefault();
+}
 
 export function lockScroll() {
   if (typeof document === "undefined") return;
   if (lockCount === 0) {
-    savedScrollY = window.scrollY;
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${savedScrollY}px`;
-    document.body.style.left = "0";
-    document.body.style.right = "0";
-    document.body.style.width = "100%";
+    document.documentElement.style.overflow = "hidden";
+    window.addEventListener("touchmove", blockTouchScroll, { passive: false });
   }
   lockCount += 1;
 }
@@ -29,13 +32,7 @@ export function unlockScroll() {
   if (typeof document === "undefined") return;
   lockCount = Math.max(0, lockCount - 1);
   if (lockCount === 0) {
-    document.body.style.position = "";
-    document.body.style.top = "";
-    document.body.style.left = "";
-    document.body.style.right = "";
-    document.body.style.width = "";
-    // "instant" overrides html { scroll-behavior: smooth }, which would
-    // otherwise sweep the page up from the top (through the pinned Hero).
-    window.scrollTo({ top: savedScrollY, behavior: "instant" });
+    document.documentElement.style.overflow = "";
+    window.removeEventListener("touchmove", blockTouchScroll);
   }
 }

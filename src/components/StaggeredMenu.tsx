@@ -237,7 +237,7 @@ export default function StaggeredMenu() {
               <Link
                 href={item.link}
                 onClick={(e) => onItemClick(e, item.link)}
-                className="sm-item relative inline-block pr-[1.6em] font-heading font-semibold uppercase leading-none tracking-[-0.02em] text-[3.25rem] max-md:text-[2.5rem] text-black transition-colors duration-150 hover:text-[#5227FF]"
+                className="sm-item relative inline-block pr-[0.7em] font-heading font-semibold uppercase leading-none tracking-[-0.02em] text-[3.25rem] max-md:text-[2.5rem] text-black transition-colors duration-150 hover:text-[#5227FF]"
               >
                 <span className="sm-label inline-block origin-bottom will-change-transform">{item.label}</span>
               </Link>

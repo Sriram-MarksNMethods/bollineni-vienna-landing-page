@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Canvas, extend, useFrame, type ThreeElement, type ThreeEvent } from "@react-three/fiber";
+import { Canvas, extend, useFrame, useThree, type ThreeElement, type ThreeEvent } from "@react-three/fiber";
 import { useGLTF, useTexture, Environment, Lightformer } from "@react-three/drei";
 import {
   BallCollider,
@@ -34,11 +34,14 @@ const STRAP_PNG = "/lanyard/lanyard.png";
 const FRONT_UV_RECT = { x: 0, y: 0, w: 0.5, h: 0.755 };
 const BACK_UV_RECT = { x: 0.5, y: 0, w: 0.5, h: 0.757 };
 
+// Length of each of the strap's three rope segments (React Bits uses 1).
+const STRAP_SEGMENT = 0.6;
+// Distance (world units) from the canvas's left edge to the strap's anchor.
+const ANCHOR_FROM_LEFT = 1.3;
+
 // Pulling the card this far below where the drag started (world units) and
 // letting go opens the popup.
 const PULL_TO_OPEN = 1.5;
-// Pointer movement under this many pixels between down and up counts as a click.
-const CLICK_SLOP_PX = 6;
 
 // R3F listens on <body>, so it sees pointer events even when a link, button,
 // the open menu or the popup is drawn over the card. Ignore those.
@@ -87,7 +90,7 @@ async function drawCardFaces(): Promise<{ front: string; back: string }> {
     ctx.fillText("NOW!", W / 2, 640);
     ctx.font = `400 30px ${body}`;
     ctx.fillStyle = "#555555";
-    ctx.fillText("Pull or tap to open", W / 2, 790);
+    ctx.fillText("Pull down to open", W / 2, 790);
   });
 
   const back = make((ctx) => {
@@ -175,7 +178,10 @@ function Band({
   const j2 = useRef<LerpedBody>(null!);
   const j3 = useRef<RapierRigidBody>(null!);
   const card = useRef<RapierRigidBody>(null!);
-  const pressRef = useRef<{ x: number; y: number; cardY: number } | null>(null);
+  // Anchor near the left edge, whatever the canvas width on this screen.
+  const viewportWidth = useThree((state) => state.viewport.width);
+  const anchorX = -viewportWidth / 2 + ANCHOR_FROM_LEFT;
+  const pressRef = useRef<{ cardY: number } | null>(null);
 
   const vec = new THREE.Vector3();
   const ang = new THREE.Vector3();
@@ -251,9 +257,9 @@ function Band({
   const [dragged, drag] = useState<false | THREE.Vector3>(false);
   const [hovered, hover] = useState(false);
 
-  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
-  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
-  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1]);
+  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], STRAP_SEGMENT]);
+  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], STRAP_SEGMENT]);
+  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], STRAP_SEGMENT]);
   useSphericalJoint(j3, card, [
     [0, 0, 0],
     [0, 1.45, 0],
@@ -308,7 +314,7 @@ function Band({
   const onPointerDown = (e: ThreeEvent<PointerEvent>) => {
     if (isCovered(e)) return;
     (e.target as Element).setPointerCapture(e.pointerId);
-    pressRef.current = { x: e.clientX, y: e.clientY, cardY: card.current.translation().y };
+    pressRef.current = { cardY: card.current.translation().y };
     drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())));
   };
 
@@ -325,28 +331,26 @@ function Band({
     const press = pressRef.current;
     pressRef.current = null;
     if (!press) return;
-    const moved = Math.hypot(e.clientX - press.x, e.clientY - press.y);
-    const pulledDown = press.cardY - card.current.translation().y > PULL_TO_OPEN;
-    // Tap/click, or pulled down far enough. Releasing makes the card dynamic
-    // again, so it springs back on its own.
-    if (moved < CLICK_SLOP_PX || pulledDown) onOpen();
+    // Only a real pull opens the popup — a plain click/tap does nothing.
+    // Releasing makes the card dynamic again, so it springs back on its own.
+    if (press.cardY - card.current.translation().y > PULL_TO_OPEN) onOpen();
   };
 
   return (
     <>
       {/* Anchor sits just above the top edge so the strap hangs from off-screen. */}
-      <group position={[0, 5.6, 0]}>
+      <group position={[anchorX, 5.6, 0]}>
         <RigidBody ref={fixed} {...segmentProps} type="fixed" />
-        <RigidBody position={[0.5, 0, 0]} ref={j1} {...segmentProps} type="dynamic">
+        <RigidBody position={[STRAP_SEGMENT * 0.5, 0, 0]} ref={j1} {...segmentProps} type="dynamic">
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[1, 0, 0]} ref={j2} {...segmentProps} type="dynamic">
+        <RigidBody position={[STRAP_SEGMENT, 0, 0]} ref={j2} {...segmentProps} type="dynamic">
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[1.5, 0, 0]} ref={j3} {...segmentProps} type="dynamic">
+        <RigidBody position={[STRAP_SEGMENT * 1.5, 0, 0]} ref={j3} {...segmentProps} type="dynamic">
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[2, 0, 0]} ref={card} {...segmentProps} type={dragged ? "kinematicPosition" : "dynamic"}>
+        <RigidBody position={[STRAP_SEGMENT * 2, 0, 0]} ref={card} {...segmentProps} type={dragged ? "kinematicPosition" : "dynamic"}>
           <CuboidCollider args={[0.8, 1.125, 0.01]} />
           <group
             scale={2.25}
