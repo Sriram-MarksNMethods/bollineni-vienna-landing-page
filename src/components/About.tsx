@@ -24,39 +24,37 @@ export default function About() {
       <div className="px-32 lg:max-xl:px-20 max-lg:px-20 max-md:px-10 max-sm:px-5">
         <div className="w-full pt-24 max-lg:pt-20 max-md:pt-14"></div>
 
-        <div className="flex justify-center">
-          <h2 className="text-5xl lg:max-xl:text-4xl max-lg:text-4xl max-md:text-2xl font-medium leading-[1.1] text-center whitespace-nowrap lg:max-xl:whitespace-normal max-lg:whitespace-normal">
-            LOW-DENSITY GATED COMMUNITY IN BENGALURU
+        {/* Three columns: heading (sized to its three lines) | building photo
+            (1200 x 1500, 4:5) | about copy. Stacks in the same order below 992px. */}
+        <div className="grid grid-cols-[auto_0.9fr_1fr] gap-[3vw] items-start max-lg:grid-cols-1 max-lg:gap-8">
+          <h2 className="-ml-[2vw] max-lg:ml-0 text-[3vw] max-lg:text-4xl max-md:text-3xl font-medium leading-[1.05] whitespace-nowrap">
+            LOW-DENSITY GATED
+            <br />
+            COMMUNITY IN
+            <br />
+            BENGALURU
           </h2>
-        </div>
-        <div className="w-full pt-16 max-lg:pt-12 max-md:pt-8"></div>
-
-        <div className="grid grid-cols-2 gap-[5vw] items-stretch max-lg:grid-cols-1 max-lg:gap-10">
-          <div className="flex flex-col items-start gap-[1.5vw] max-lg:gap-6 max-lg:items-center max-lg:text-center max-md:gap-4 max-lg:order-2">
-            <p className="text-2xl max-lg:text-xl max-md:text-base text-justify">
+          <div className="relative w-full aspect-[4/5] overflow-hidden">
+            <Image
+              src="/images/hero.jpg"
+              alt="Bollineni Vienna residential towers at dusk."
+              title="Bollineni Vienna residential towers at dusk."
+              fill
+              loading="lazy"
+              sizes="(max-width: 991px) 100vw, 30vw"
+              className="object-cover"
+            />
+          </div>
+          <div className="flex flex-col gap-[1vw] max-lg:gap-4">
+            <p className="text-base max-md:text-[0.95rem] leading-relaxed">
               Bollineni Vienna by Bollineni Group brings timeless elegance and contemporary luxury to one of North Bengaluru’s most sought-after locations. Designed for those who value exclusivity, this low-density gated community features refined architecture, expansive spaces, and world-class amenities.
             </p>
-            <p className="text-2xl max-lg:text-xl max-md:text-base text-justify">
+            <p className="text-base max-md:text-[0.95rem] leading-relaxed">
               Perfectly positioned for those seeking apartments near Kempegowda International Airport, Bollineni Vienna offers premium apartments in Yelahanka and thoughtfully designed bespoke residences Bengaluru homebuyers will appreciate. Each 4 BHK and 5 BHK residence is crafted to maximize natural light, ventilation, privacy, and effortless functionality.
             </p>
-            <p className="text-2xl max-lg:text-xl max-md:text-base text-justify">
+            <p className="text-base max-md:text-[0.95rem] leading-relaxed">
               Surrounded by lush landscapes, open greens, and curated lifestyle amenities, Bollineni Vienna offers luxury apartments in Kogilu and ultra luxury apartments in North Bengaluru, creating a serene retreat with seamless urban convenience. Discover distinguished flats for sale in Kogilu and experience elevated living in one of Bengaluru’s finest addresses.
             </p>
-          </div>
-          <div className="relative max-lg:order-1">
-            <div className="sticky top-[6vw] h-[28vw] overflow-hidden max-lg:static max-lg:h-[80vw]">
-              <div className="relative w-full h-full">
-                <Image
-                  src="/images/hero.jpg"
-                  alt="Elegant living room interior at Bollineni Vienna with a marble feature wall and wood-panelled shelving."
-                  title="Elegant living room interior at Bollineni Vienna with a marble feature wall and wood-panelled shelving."
-                  fill
-                  loading="lazy"
-                  sizes="(max-width: 991px) 100vw, 50vw"
-                  className="object-cover"
-                />
-              </div>
-            </div>
           </div>
         </div>
         <div className="w-full pt-24 max-lg:pt-20 max-md:pt-14"></div>
