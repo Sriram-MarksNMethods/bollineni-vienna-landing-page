@@ -10,6 +10,7 @@ import {
   RigidBody,
   useRopeJoint,
   useSphericalJoint,
+  interactionGroups,
   type RapierRigidBody,
   type RigidBodyProps,
 } from "@react-three/rapier";
@@ -33,9 +34,14 @@ const BACK_UV_RECT = { x: 0.5, y: 0, w: 0.5, h: 0.757 };
 // strap's three rope segments (React Bits uses 1).
 const ANCHOR_FROM_LEFT = { desktop: 1.3, mobile: 0.85 };
 const CARD_SCALE = { desktop: 0.8, mobile: 0.6 };
-const STRAP_SEGMENT = { desktop: 0.35, mobile: 0.14 };
+const STRAP_SEGMENT = { desktop: 0.35, mobile: 0.16 };
 // Strap thickness in world units.
 const STRAP_WIDTH = { desktop: 0.2, mobile: 0.15 };
+
+// The strap's joint bodies (group 1) collide only with the card (group 0),
+// never with each other: on a short strap they sit closer together than
+// their own size, and colliding with each other made the card shake nonstop.
+const JOINT_COLLISIONS = interactionGroups(1, [0]);
 
 // Pulling the card this far below where the drag started (world units) and
 // letting go opens the popup.
@@ -424,13 +430,13 @@ function Band({
       <group position={[anchorX, 5.6, 0]}>
         <RigidBody ref={fixed} {...segmentProps} type="fixed" />
         <RigidBody position={[strapSegment * 0.5, 0, 0]} ref={j1} {...segmentProps} type="dynamic">
-          <BallCollider args={[0.1]} />
+          <BallCollider args={[0.1]} collisionGroups={JOINT_COLLISIONS} />
         </RigidBody>
         <RigidBody position={[strapSegment, 0, 0]} ref={j2} {...segmentProps} type="dynamic">
-          <BallCollider args={[0.1]} />
+          <BallCollider args={[0.1]} collisionGroups={JOINT_COLLISIONS} />
         </RigidBody>
         <RigidBody position={[strapSegment * 1.5, 0, 0]} ref={j3} {...segmentProps} type="dynamic">
-          <BallCollider args={[0.1]} />
+          <BallCollider args={[0.1]} collisionGroups={JOINT_COLLISIONS} />
         </RigidBody>
         <RigidBody position={[strapSegment * 2, 0, 0]} ref={card} {...segmentProps} type={dragged ? "kinematicPosition" : "dynamic"}>
           <CuboidCollider args={[0.8 * cardScale, 1.125 * cardScale, 0.01]} />
