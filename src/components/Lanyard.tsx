@@ -43,6 +43,11 @@ const ANCHOR_FROM_LEFT = 1.3;
 // (icon + wordmark); the rest of the canvas is empty padding.
 const LOGO_CROP = { x: 644, y: 152, w: 632, h: 776 };
 
+// Card size relative to the React Bits original (which is ~120px wide on a
+// 1080p screen — too small to read). The model, its collider and the joint
+// that holds it all scale together.
+const CARD_SCALE = 1.3;
+
 // Pulling the card this far below where the drag started (world units) and
 // letting go opens the popup.
 const PULL_TO_OPEN = 1.5;
@@ -93,6 +98,13 @@ async function drawCardFaces(): Promise<{ front: string; back: string }> {
   const front = make((ctx) => {
     ctx.fillStyle = "#fbf8f1";
     ctx.fillRect(0, 0, W, H);
+    // Thin inset border, so the beige card still reads as a card on the
+    // beige page.
+    ctx.strokeStyle = "#0c0c0c";
+    ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.roundRect(30, 30, W - 60, H - 60, 36);
+    ctx.stroke();
     // Logo cropped to its artwork and drawn large. Drawing it a few times,
     // nudged by a couple of pixels, thickens its fine strokes so they survive
     // being shrunk onto a small card.
@@ -109,8 +121,8 @@ async function drawCardFaces(): Promise<{ front: string; back: string }> {
     ctx.fillText("ENQUIRE", W / 2, 720);
     ctx.fillText("NOW!", W / 2, 880);
     ctx.fillRect(90, 985, W - 180, 12);
-    ctx.font = `700 52px ${body}`;
-    ctx.fillText("PULL DOWN TO OPEN", W / 2, 1110);
+    ctx.font = `700 62px ${body}`;
+    ctx.fillText("PULL TO OPEN", W / 2, 1110);
   });
 
   const back = make((ctx) => {
@@ -286,7 +298,7 @@ function Band({
   useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], STRAP_SEGMENT]);
   useSphericalJoint(j3, card, [
     [0, 0, 0],
-    [0, 1.45, 0],
+    [0, 1.45 * CARD_SCALE, 0],
   ]);
 
   useEffect(() => {
@@ -375,10 +387,10 @@ function Band({
           <BallCollider args={[0.1]} />
         </RigidBody>
         <RigidBody position={[STRAP_SEGMENT * 2, 0, 0]} ref={card} {...segmentProps} type={dragged ? "kinematicPosition" : "dynamic"}>
-          <CuboidCollider args={[0.8, 1.125, 0.01]} />
+          <CuboidCollider args={[0.8 * CARD_SCALE, 1.125 * CARD_SCALE, 0.01]} />
           <group
-            scale={2.25}
-            position={[0, -1.2, -0.05]}
+            scale={2.25 * CARD_SCALE}
+            position={[0, -1.2 * CARD_SCALE, -0.05]}
             onPointerOver={(e: ThreeEvent<PointerEvent>) => hover(!isCovered(e))}
             onPointerOut={() => hover(false)}
             onPointerUp={onPointerUp}
@@ -387,16 +399,9 @@ function Band({
             onLostPointerCapture={cancelDrag}
           >
             <mesh geometry={nodes.card.geometry}>
-              <meshPhysicalMaterial
-                map={cardMap}
-                map-anisotropy={16}
-                // Matte printed card: a metallic surface mirrors the environment
-                // lighting and washes out the print.
-                clearcoat={0}
-                clearcoatRoughness={0.15}
-                roughness={0.85}
-                metalness={0}
-              />
+              {/* Unlit, so the print shows its exact colours: any lighting
+                  greys the black text and washes out the logo. */}
+              <meshBasicMaterial map={cardMap} map-anisotropy={16} />
             </mesh>
             <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
             <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
