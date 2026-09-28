@@ -17,14 +17,14 @@ const labelClass =
   "pointer-events-none absolute left-5 top-8 -translate-y-1/2 text-base text-ink/50 transition-all duration-150 peer-focus:top-4 peer-focus:text-xs peer-[:not(:placeholder-shown)]:top-4 peer-[:not(:placeholder-shown)]:text-xs";
 
 const purposeOptions = [
-  { value: "general-enquiry", label: "General Enquiry" },
+  { value: "general-enquiry", label: "General Inquiry" },
   { value: "download-brochure", label: "Brochure" },
   { value: "site-visit", label: "Site Visit" },
 ];
 
 type Status = "idle" | "submitting" | "error";
 
-// Used twice on the home page (Contact section + Enquire Now popup), so every
+// Used twice on the home page (Contact section + Inquire Now popup), so every
 // element id is prefixed to keep ids unique when both are in the DOM.
 export default function ContactForm({ idPrefix }: { idPrefix: string }) {
   const router = useRouter();
@@ -58,11 +58,12 @@ export default function ContactForm({ idPrefix }: { idPrefix: string }) {
     <form id={`${idPrefix}-contact-form`} onSubmit={handleSubmit} className="flex flex-col gap-4">
       <fieldset className="flex flex-col">
         <legend className="mb-3 text-sm text-ink/60">I&apos;m interested in</legend>
-        <div className="flex flex-wrap gap-2">
+        {/* Below 640px the three chips shrink to share one line. */}
+        <div className="flex flex-wrap gap-2 max-sm:flex-nowrap max-sm:gap-1.5">
           {purposeOptions.map((option, i) => (
             <label
               key={option.value}
-              className="cursor-pointer rounded-full border border-ink/20 px-5 py-2.5 text-[0.95rem] text-ink transition-colors hover:border-ink has-checked:border-ink has-checked:bg-ink has-checked:text-beige has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ink"
+              className="cursor-pointer rounded-full border border-ink/20 px-5 py-2.5 text-[0.95rem] max-sm:flex-auto max-sm:px-2.5 max-sm:py-2 max-sm:text-center max-sm:whitespace-nowrap max-sm:text-[min(0.8rem,3.4vw)] text-ink transition-colors hover:border-ink has-checked:border-ink has-checked:bg-ink has-checked:text-beige has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ink"
             >
               <input
                 type="radio"
@@ -99,7 +100,10 @@ export default function ContactForm({ idPrefix }: { idPrefix: string }) {
         </label>
       </div>
 
-      <div className={`${boxClass} contact-phone-input`}>
+      <div
+        className={`${boxClass} contact-phone-input`}
+        style={{ "--dial-w": `${dialCode.length + 1}ch` } as React.CSSProperties}
+      >
         <PhoneInput
           country={"in"}
           value={phone}
@@ -128,7 +132,12 @@ export default function ContactForm({ idPrefix }: { idPrefix: string }) {
         <label htmlFor={`${idPrefix}-Phone`} className="pointer-events-none absolute left-5 top-4 -translate-y-1/2 text-xs text-ink/50">
           Phone
         </label>
-        <span className="contact-phone-dialcode">+{dialCode}</span>
+        <span className="contact-phone-dialcode">
+          +{dialCode}
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true" className="text-ink/50">
+            <path d="M2 3.5l3 3 3-3" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
         <span className="contact-phone-divider" aria-hidden="true" />
       </div>
       <div className={boxClass}>

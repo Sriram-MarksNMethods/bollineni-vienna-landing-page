@@ -51,7 +51,8 @@ export default function About() {
         </div>
         <div className="w-full pt-24 max-lg:pt-20 max-md:pt-14"></div>
 
-        <StatsStrip stats={details} />
+        {/* Figures in the brand gold (the logo colour). */}
+        <StatsStrip stats={details} valueClassName="text-[#d9ad2b]" />
 
         <div className="w-full pt-24 max-lg:pt-20 max-md:pt-14"></div>
       </div>

@@ -25,7 +25,7 @@ export default function ThankYouPage() {
       <div className="relative z-10 flex flex-col items-center">
         <div className="relative h-[6.5vw] aspect-[1920/1080] max-lg:h-24 max-md:h-20 max-sm:h-16 brightness-0 invert">
           <Image
-            src="/images/bollineni_vienna.svg"
+            src="/images/bollineni_vienna_gold.svg"
             preload
             loading="eager"
             alt="Bollineni Vienna"

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import gsap from "gsap";
 import { lockScroll, unlockScroll } from "@/lib/scrollLock";
 import { markLoaderDone } from "@/lib/loaderDone";
@@ -38,7 +37,7 @@ export default function LoadingScreen() {
     const timer = setTimeout(() => {
       const tl = gsap.timeline({ onComplete: dismiss });
 
-      // logo + wordmark fade out first
+      // logo fades out first
       tl.to(contentRef.current, {
         opacity: 0,
         duration: 0.25,
@@ -71,26 +70,19 @@ export default function LoadingScreen() {
 
   return (
     <div
-      className="fixed inset-0 z-[99] bg-khaki w-screen h-screen flex"
+      className="fixed inset-0 z-[99] bg-white w-screen h-screen flex"
       ref={rootRef}
     >
       <div
         className="flex flex-col items-center gap-[0.5vw] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-md:gap-2"
         ref={contentRef}
       >
-        <div className="relative h-[6vw] aspect-[1920/1080] max-md:h-24 max-sm:h-16">
-          <Image
-            src="/images/bollineni_vienna.svg"
-            fill
-            sizes="240px"
-            alt="Bollineni Vienna"
-            title="Bollineni Vienna"
-            className="object-contain"
-          />
-        </div>
-        <div className="font-heading">
-          <div className="text-3xl max-lg:text-2xl max-md:text-xl font-medium">VIENNA</div>
-        </div>
+        {/* The logo file is the mark in the middle of a 1920 x 1080 canvas;
+            this viewBox crops to the mark (same as the footer), so the height
+            below is the logo's own height. */}
+        <svg viewBox="654 163 611 755" className="h-[12vw] w-auto max-lg:h-40 max-md:h-36 max-sm:h-32" role="img" aria-label="Bollineni Vienna">
+          <image href="/images/bollineni_vienna_gold.svg" x="0" y="0" width="1920" height="1080" />
+        </svg>
       </div>
     </div>
   );

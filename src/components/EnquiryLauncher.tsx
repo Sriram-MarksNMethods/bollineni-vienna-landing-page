@@ -15,6 +15,14 @@ export default function EnquiryLauncher() {
 
   useEffect(() => onLoaderDone(() => setShowLanyard(true)), []);
 
+  // Other sections (e.g. Floor Plans' "Unlock this plan") open the same popup
+  // by dispatching this event, so the page keeps a single form.
+  useEffect(() => {
+    const openFromEvent = () => setOpen(true);
+    window.addEventListener("open-enquiry", openFromEvent);
+    return () => window.removeEventListener("open-enquiry", openFromEvent);
+  }, []);
+
   return (
     <>
       {showLanyard && <Lanyard onOpen={() => setOpen(true)} />}
@@ -25,7 +33,7 @@ export default function EnquiryLauncher() {
         onClick={() => setOpen(true)}
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[45] focus:rounded-full focus:bg-ink focus:text-white focus:px-5 focus:py-3"
       >
-        Enquire now
+        Inquire now
       </button>
       <EnquiryModal open={open} onClose={() => setOpen(false)} />
     </>

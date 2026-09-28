@@ -5,9 +5,15 @@
  * font-heading, etc.) instead of writing var(--...) everywhere.
  */
 @theme {
-  --color-beige: #fbf8f1;
+  /* Named "beige" for history; the site now uses plain white here (page and
+     section backgrounds, light text on teal, cards). */
+  --color-beige: #ffffff;
   --color-khaki: #efe9dd;
   --color-ink: #0c0c0c;
+  /* Dark section background (Floor Plans, Why Invest, Footer; FAQs and
+     Contact Us use ink black). The logo's gold (#d9ad2b) is set inside
+     public/images/bollineni_vienna_gold.svg, not here. */
+  --color-teal: #173c4a;
   --color-neutral-light: #aaaaaa;
   --color-neutral-lighter: #cccccc;
 
@@ -106,44 +112,6 @@ p, a {
   pointer-events: none;
 }
 
-
-/* FAQ accordion */
-.faq-item_answer {
-  padding-left: 1.25vw;
-  padding-right: 1.25vw;
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  transition: max-height 0.4s ease, opacity 0.3s ease;
-  @media (max-width: 991px) {
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-  }
-  @media (max-width: 767px) {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-}
-
-.faq-item_answer.is-open {
-  max-height: 30vw;
-  opacity: 1;
-  @media (max-width: 991px) {
-    /* Below this point answer text is set in fixed rem sizes (see the
-       body/p,a rules above), so it no longer shrinks with vw — a vw-based
-       cap here would clip long answers on narrow screens. */
-    max-height: 20rem;
-  }
-}
-
-.faq-item-icon {
-  transition: transform 0.3s ease;
-}
-
-.faq-item-icon.is-open {
-  transform: rotate(180deg);
-}
-
 } /* end @layer base */
 
 /* react-phone-input-2 theming for the contact form. The rounded box around it
@@ -152,7 +120,11 @@ p, a {
    sits at the top of the box, so the flag, dial code, divider and typed
    number are all shifted down by the same 0.5rem.
    Everything here is in rem, not vw: the flag icon, chevron and dial-code
-   text are fixed-size, so vw offsets would drift out of line with them. */
+   text are fixed-size, so vw offsets would drift out of line with them.
+   Left to right: flag (1.25rem) -> "+91" + chevron (from 2.625rem) ->
+   divider -> typed number. --dial-w is the dial code's width in ch, set by
+   ContactForm from the code's length, so a longer code ("+971") pushes the
+   chevron, divider and number along with it instead of overlapping them. */
 .contact-phone-input .react-tel-input {
   font-family: inherit;
 }
@@ -163,7 +135,7 @@ p, a {
   background-color: transparent;
   border: none;
   border-radius: 0.75rem;
-  padding: 1.5rem 1.25rem 0.375rem 5.75rem;
+  padding: 1.5rem 1.25rem 0.375rem calc(5rem + var(--dial-w));
   font-size: 1rem;
   color: var(--color-ink);
 }
@@ -174,7 +146,11 @@ p, a {
 
 .contact-phone-input .contact-phone-dialcode {
   position: absolute;
-  left: 2.5rem;
+  left: 2.625rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-variant-numeric: tabular-nums;
   top: calc(50% + 0.5rem);
   transform: translateY(-50%);
   font-size: 1rem;
@@ -184,7 +160,8 @@ p, a {
 
 .contact-phone-input .contact-phone-divider {
   position: absolute;
-  left: 5.25rem;
+  left: calc(4.25rem + var(--dial-w));
+  font-size: 1rem;
   top: calc(25% + 0.5rem);
   bottom: 18%;
   width: 1px;
@@ -196,21 +173,22 @@ p, a {
    with the chevron trailing the code (flag -> code -> chevron). */
 .contact-phone-input .react-tel-input .flag-dropdown {
   top: 1rem;
-  width: 4.5rem;
+  font-size: 1rem;
+  width: calc(4.25rem + var(--dial-w));
   background-color: transparent;
   border: none;
 }
 
 .contact-phone-input .react-tel-input .selected-flag {
-  width: 4.5rem;
+  width: 100%;
   padding-left: 1.25rem;
   background-color: transparent;
 }
 
-/* .arrow is nested inside the flag icon, so `left` is measured from the
-   icon's own box (1rem padding + ~1rem icon), not from the wrapper. */
+/* The library's own triangle sits at a fixed offset from the flag, so it
+   can't follow the dial code; ContactForm draws a chevron after the code. */
 .contact-phone-input .react-tel-input .selected-flag .arrow {
-  left: 3.6rem;
+  display: none;
 }
 
 .contact-phone-input .react-tel-input .flag-dropdown.open,
@@ -236,29 +214,22 @@ p, a {
   width: 100%;
 }
 
-/* Amenities icons: an infinite draw-in/fill/erase cycle (used with the
-   pathLength="1" + stroke-dasharray trick, so stroke-dashoffset is
-   independent of each icon's actual path length). */
-@keyframes icon-draw-loop {
-  0% {
+/* Card doodles: each stroke draws in once (see Doodle.tsx). */
+@keyframes doodle-draw {
+  from {
     stroke-dashoffset: 1;
-    fill-opacity: 0;
   }
-  28% {
+  to {
     stroke-dashoffset: 0;
-    fill-opacity: 0;
   }
-  42% {
-    stroke-dashoffset: 0;
-    fill-opacity: 1;
+}
+
+/* Floor Plans autoplay timer bar (see FloorPlans.tsx). */
+@keyframes floor-plan-progress {
+  from {
+    transform: scaleX(0);
   }
-  72% {
-    stroke-dashoffset: 0;
-    fill-opacity: 1;
-  }
-  88%,
-  100% {
-    stroke-dashoffset: 1;
-    fill-opacity: 0;
+  to {
+    transform: scaleX(1);
   }
 }

@@ -44,8 +44,8 @@ export default function Hero() {
             <h1 className="text-7xl max-lg:text-6xl max-md:text-4xl">
               BOLLINENI VIENNA
             </h1>
-            <div className="flex justify-center w-[30vw] max-lg:w-auto">
-              <p className="text-sm text-center">
+            <div className="flex justify-center">
+              <p className="text-lg max-lg:text-sm max-md:text-xs text-center">
                 Luxury 4 & 5 BHK Apartments in Kogilu, North Bangalore
               </p>
             </div>

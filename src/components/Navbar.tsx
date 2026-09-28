@@ -11,7 +11,7 @@ export default function Navbar() {
             <Link href="/" aria-current="page" className="inline-block max-w-full">
               <div className="relative h-[6.5vw] aspect-[1920/1080] max-lg:h-24 max-md:h-20 max-sm:h-16">
                 <Image
-                  src="/images/bollineni_vienna.svg"
+                  src="/images/bollineni_vienna_gold.svg"
                   alt="Bollineni Vienna"
                   title="Bollineni Vienna"
                   fill

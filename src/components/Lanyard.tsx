@@ -96,11 +96,11 @@ async function drawCardFaces(): Promise<{ front: string; back: string }> {
     ctx.font = `700 88px ${body}`;
     ctx.fillText("DRAG THIS!", W / 2, 285);
     ctx.fillRect(90, 390, W - 180, 14);
-    // Largest size at which "ENQUIRE" still fits inside the border.
+    // Largest size at which "INQUIRE" still fits inside the border.
     ctx.font = `700 100px ${body}`;
-    const fontSize = Math.min(190, Math.floor((100 * (W - 200)) / ctx.measureText("ENQUIRE").width));
+    const fontSize = Math.min(190, Math.floor((100 * (W - 200)) / ctx.measureText("INQUIRE").width));
     ctx.font = `700 ${fontSize}px ${body}`;
-    ctx.fillText("ENQUIRE", W / 2, 555);
+    ctx.fillText("INQUIRE", W / 2, 555);
     ctx.fillText("NOW!", W / 2, 755);
     ctx.fillRect(90, 890, W - 180, 14);
   });
@@ -382,10 +382,16 @@ function Band({
       card.current?.setNextKinematicTranslation({ x: vec.x - dragged.x, y: vec.y - dragged.y, z: vec.z - dragged.z });
     }
     if (fixed.current) {
+      // The first frame after the card has been resting can have a delta of
+      // several seconds. Cap it, and keep the smoothing factor at or below 1:
+      // above 1 the strap's points overshoot their joints, then overshoot back
+      // further every frame, until the strap flies off-screen (or the sanity
+      // check in drawStrap hides it).
+      const dt = Math.min(delta, 1 / 30);
       [j1, j2].forEach((ref) => {
         const lerped = getLerped(ref.current);
         const clampedDistance = Math.max(0.1, Math.min(1, lerped.distanceTo(ref.current.translation())));
-        lerped.lerp(ref.current.translation(), delta * (minSpeed + clampedDistance * (maxSpeed - minSpeed)));
+        lerped.lerp(ref.current.translation(), Math.min(1, dt * (minSpeed + clampedDistance * (maxSpeed - minSpeed))));
       });
       curve.points[0].copy(j3.current.translation());
       curve.points[1].copy(getLerped(j2.current));

@@ -65,7 +65,7 @@ export default function EnquiryModal({ open, onClose }: { open: boolean; onClose
         </button>
         <div className="mb-6 pr-12">
           <h2 id="enquire-heading" className="text-4xl max-sm:text-3xl font-medium leading-none">
-            Enquire Now
+            Inquire Now
           </h2>
           <p className="mt-2 text-sm text-ink/60">Bollineni Vienna · Kogilu, North Bengaluru</p>
         </div>
