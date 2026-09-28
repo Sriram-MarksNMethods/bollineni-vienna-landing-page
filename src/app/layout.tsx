@@ -45,14 +45,14 @@ export const metadata: Metadata = {
     title: "4 & 5 BHK Luxury Apartments in North Bangalore | Bollineni Vienna",
     description:
       "Luxury 4 & 5 BHK flats in North Bangalore at Bollineni Vienna. European-inspired design, premium amenities, excellent connectivity.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Bollineni Vienna" }],
+    images: [{ url: "/og-image-gold.png", width: 1200, height: 630, alt: "Bollineni Vienna" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "4 & 5 BHK Luxury Apartments in North Bangalore | Bollineni Vienna",
     description:
       "Luxury 4 & 5 BHK flats in North Bangalore at Bollineni Vienna. European-inspired design, premium amenities, excellent connectivity.",
-    images: ["/og-image.png"],
+    images: ["/og-image-gold.png"],
   },
 };
 
