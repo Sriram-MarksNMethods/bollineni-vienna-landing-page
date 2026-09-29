@@ -45,7 +45,7 @@ export default function About() {
               Perfectly positioned for those seeking apartments near Kempegowda International Airport, Bollineni Vienna offers premium apartments in Yelahanka and thoughtfully designed bespoke residences Bengaluru homebuyers will appreciate. Each 4 BHK and 5 BHK residence is crafted to maximize natural light, ventilation, privacy, and effortless functionality.
             </p>
             <p className="text-base max-md:text-[0.95rem] leading-relaxed">
-              Surrounded by lush landscapes, open greens, and curated lifestyle amenities, Bollineni Vienna offers luxury apartments in Kogilu and ultra luxury apartments in North Bengaluru, creating a serene retreat with seamless urban convenience. Discover distinguished flats for sale in Kogilu and experience elevated living in one of Bengaluru’s finest addresses.
+              Surrounded by lush landscapes, open greens, and curated lifestyle amenities, Bollineni Vienna offers luxury apartments in Kogilu and ultra-luxury apartments in North Bengaluru, creating a serene retreat with seamless urban convenience. Discover distinguished flats for sale in Kogilu and experience elevated living in one of Bengaluru’s finest addresses.
             </p>
           </div>
         </div>

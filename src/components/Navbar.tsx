@@ -9,7 +9,7 @@ export default function Navbar() {
         <div className="px-[3vw] max-lg:px-10 max-md:px-6 max-sm:px-4">
           <div className="py-[1.25vw] max-lg:py-4 flex justify-center">
             <Link href="/" aria-current="page" className="inline-block max-w-full">
-              <div className="relative h-[6.5vw] aspect-[1920/1080] max-lg:h-24 max-md:h-20 max-sm:h-16">
+              <div className="relative h-[9vw] aspect-[1920/1080] max-lg:h-32 max-md:h-28 max-sm:h-24">
                 <Image
                   src="/images/bollineni_vienna_gold.svg"
                   alt="Bollineni Vienna"

@@ -14,7 +14,7 @@ const reasons = [
   {
     doodle: "growth",
     title: "Strong Growth Potential",
-    body: "With rapid infrastructure development, proximity to major employment hubs, and rising housing demand, flats for sale in Kogilu offer compelling potential, particularly across 4 BHK & 5 BHK apartments in Bengaluru and ultra luxury apartments in North Bengaluru.",
+    body: "With rapid infrastructure development, proximity to major employment hubs, and rising housing demand, flats for sale in Kogilu offer compelling potential, particularly across 4 BHK & 5 BHK apartments in Bengaluru and ultra-luxury apartments in North Bengaluru.",
   },
 ];
 

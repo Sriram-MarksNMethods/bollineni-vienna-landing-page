@@ -116,7 +116,7 @@ export default function Amenities() {
                 id="amenities-intro"
                 className={`text-base max-md:text-[0.95rem] leading-relaxed text-ink/70 ${introOpen ? "" : "max-md:line-clamp-3"}`}
               >
-                Designed for exclusivity and refined living, Bollineni Vienna by Bollineni Group offers curated amenities spanning luxury, wellness, recreation, and convenience. As a low-density gated community, it creates a vibrant lifestyle experience for those seeking premium apartments in Yelahanka and ultra luxury apartments in North Bengaluru.
+                Designed for exclusivity and refined living, Bollineni Vienna by Bollineni Group offers curated amenities spanning luxury, wellness, recreation, and convenience. As a low-density gated community, it creates a vibrant lifestyle experience for those seeking premium apartments in Yelahanka and ultra-luxury apartments in North Bengaluru.
               </p>
               <button
                 type="button"

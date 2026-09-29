@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     "4 BHK apartments in Yelahanka",
     "5 BHK apartments in Bangalore",
     "Luxury apartments in North Bangalore",
-    "ultra luxury apartments in North Bengaluru",
+    "ultra-luxury apartments in North Bengaluru",
     "4 BHK flats for sale in Yelahanka",
     "5 BHK flats in North Bangalore",
     "Luxury apartments in Kogilu Bangalore",
